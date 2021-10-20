@@ -4,6 +4,8 @@
   "description": "",
   "scripts": {
     "start": "parcel src/index.html",
+    "start_r": "parcel src_plain/receive.html",
+    "start_a": "parcel src_plain/* --https",
     "build": "parcel build src/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

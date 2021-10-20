@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width">
+        <title>Peer-to-Peer Cue System --- Sender</title>
+        <link rel="stylesheet" href="style.css">
+<style>
+video{
+	border: solid 1px red;
+}
+</style>
+    </head>
+    <body>
+			<h1>Peer-to-Peer Cue System --- ID <a id="peer_id" href=""></span></h1>
+			<button id="connect_b">connect video</button>
+			<button id="con_b">connect to peer</button>
+			<button id="call_b">call to peer</button>
+			<button id="end_b">end call to peer</button>
+video_out<video id="video_out" ></video>
+video_in<video id="video_in" ></video>
+
+<script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+<script>
+(function () {
+
+/////////////////////////////////////////
+	var video_out =  document.getElementById("video_out");
+  var video_in = document.getElementById("video_in");
+  var peer_id = document.getElementById("peer_id");
+  var connect_b = document.getElementById("connect_b");
+  var con_b = document.getElementById("con_b");
+  var call_b = document.getElementById("call_b");
+  var end_b = document.getElementById("end_b");
+var local_stream = null;	
+  
+function startVideo(){
+  console.log("STAAART", this);
+	try{
+	  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.mediaDevices.getUserMedia;
+		//if(getUserMedia)
+		if (navigator.getUserMedia) {
+			   navigator.getUserMedia({ audio: true, video: { 
+					 //width: 1280, height: 720 
+					 //width: 600, height: 400 
+				 } },
+						 function(stream) {
+								var video = document.querySelector('#video_out');
+								video.srcObject = stream;
+								video.onloadedmetadata = function(e) {
+								video.play();
+								local_stream = stream;
+							  //connectPeer();
+							 };
+						 },
+						 function(err) {
+								console.log("The following error occurred: " + err.name);
+						 }
+					);
+		} else {
+			   console.log("getUserMedia not supported");
+		}
+	}catch(err){
+		console.log(err);
+	}
+}
+connect_b.addEventListener("click",startVideo);
+
+/////////////////////////////////////////
+con_b.addEventListener("click",connectPeer);
+call_b.addEventListener("click",callPeer);
+end_b.addEventListener("click",peerDisconnect);
+
+var lastPeerId = null;
+var peer = null; // own peer object
+var conn = null;
+var call_to = null;
+
+function connectPeer(){
+	console.log("connectPeer");
+	peer = new Peer(); 
+	
+	peer.on('call', function(call) {
+		call.answer(local_stream); // Answer the call with an A/V stream.
+		call.on('stream', function(remoteStream) {
+			// Show stream in some video/canvas element.
+			video_in.srcObject = remoteStream;
+			video_in.onloadedmetadata = function(e) {
+				video_in.play();
+			}
+		});
+	}, function(err) {
+						    console.log('Failed to get local stream' ,err);
+	});
+
+  peer.on('open', function (id) {
+			// Workaround for peer.reconnect deleting previous id
+			if (peer.id === null) {
+					console.log('Received null id from peer open');
+					peer.id = lastPeerId;
+			} else {
+					lastPeerId = peer.id;
+			}
+
+			console.log('ID: ' + peer.id);
+			//recvId.innerHTML = "ID: " + peer.id;
+	    peer_id.innerHTML = "https://b5277.k.dedikuoti.lt:1234/test.html?ID="+peer.id;
+	    peer_id.href = "https://b5277.k.dedikuoti.lt:1234/test.html?ID="+peer.id;
+			//status.innerHTML = "Awaiting connection...";
+			//callPeer()
+	});
+//*
+                    peer.on('connection', function (c) {
+                        // Allow only a single connection
+                        if (conn && conn.open) {
+                            c.on('open', function() {
+                                c.send("Already connected to another client");
+                                setTimeout(function() { c.close(); }, 500);
+                            });
+                            return;
+                        }
+
+                        conn = c;
+                        console.log("Connected to: " + conn.peer);
+                        //status.innerHTML = "Connected";
+                        //ready();
+                    });
+                    peer.on('disconnected', function () {
+                        //status.innerHTML = "Connection lost. Please reconnect";
+                        console.log('Connection lost. Please reconnect');
+
+                        // Workaround for peer.reconnect deleting previous id
+                        peer.id = lastPeerId;
+                        peer._lastServerId = lastPeerId;
+                        peer.reconnect();
+                    });
+                    peer.on('close', function() {
+                        conn = null;
+                        //status.innerHTML = "Connection destroyed. Please refresh";
+                        console.log('Connection destroyed');
+                    });
+										//*/
+                    peer.on('error', function (err) {
+                        console.log(err);
+                        alert('' + err);
+                    });
+}//end function 
+
+function callPeer(){
+  //console.log("callPeer", peer);
+	var another = location.search.slice(1).split("&")[0].split("=")[1]
+	if(another){
+		console.log("launching call", another);
+		call_to = peer.call(another, local_stream);
+		console.log("launching call", call_to);
+		//*
+
+			call_to.on('stream', function(remoteStream) {
+				// Show stream in some video/canvas element.
+				video_in.srcObject = remoteStream;
+				video_in.onloadedmetadata = function(e) {
+					video_in.play();
+				}
+			});
+			//*/
+	}//end if
+}//end function
+
+function peerDisconnect(){
+  //peer.disconnect();
+	call_to.close();
+}
+/////////////////////////////////////////
+})();
+</script>
+
+    </body>
+</html>
+

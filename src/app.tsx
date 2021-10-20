@@ -1,7 +1,12 @@
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import PeerJs from 'peerjs';
-import { Switch, Route, BrowserRouter, useHistory } from 'react-router-dom';
+import { 
+Switch, 
+Route, 
+BrowserRouter, 
+useHistory 
+} from 'react-router-dom';
 
 let peer: PeerJs;
 let connection: PeerJs.DataConnection;
@@ -16,7 +21,7 @@ interface ChatMessage {
 }
 
 const NameInput: React.FC = () => {
-  const history = useHistory();
+  const history = {} ; //useHistory();
   const [availablePeer, setAvailablePeer] = React.useState(peer);
 
   const submit = React.useCallback<React.FormEventHandler<HTMLFormElement>>((ev) => {
@@ -30,7 +35,7 @@ const NameInput: React.FC = () => {
     peer = availablePeer;
 
     if (availablePeer) {
-      history.replace('/overview');
+     // history.replace('/overview');
     }
   }, [availablePeer]);
 
@@ -44,7 +49,7 @@ const NameInput: React.FC = () => {
 };
 
 const Overview: React.FC = () => {
-  const history = useHistory();
+  const history = {}; //useHistory();
   const [availablePeer] = React.useState(peer);
   const [availableConnection, setAvailableConnection] = React.useState(connection);
 
@@ -64,9 +69,9 @@ const Overview: React.FC = () => {
     connection = availableConnection;
 
     if (!availablePeer) {
-      history.replace('/');
+      //history.replace('/');
     } else if (availableConnection) {
-      history.replace('/call');
+      //history.replace('/call');
     } else {
       const handler = (connection: PeerJs.DataConnection) => {
         connection['caller'] = connection.peer;
@@ -105,7 +110,7 @@ function showStream(call: PeerJs.MediaConnection, otherVideo: HTMLVideoElement) 
 }
 
 const Call: React.FC = () => {
-  const history = useHistory();
+  const history = {}; //useHistory();
   const otherVideo = React.useRef<HTMLVideoElement>();
   const selfVideo = React.useRef<HTMLVideoElement>();
   const [messages, setMessages] = React.useState<Array<ChatMessage>>([]);
@@ -171,7 +176,7 @@ const Call: React.FC = () => {
     connection = availableConnection;
 
     if (!availableConnection) {
-      history.replace('/overview');
+      //history.replace('/overview');
     } else {
       const dataHandler = (message: string) => {
         appendMessage(message, false);
@@ -229,13 +234,28 @@ const Call: React.FC = () => {
 
 const App: React.FC = () => {
   return (
+<div>
+<NameInput />
+{ 
+  !peer ? null :
+   ( <Call /> )
+  
+}
+{ /*
+*/ }
+<Overview />
     <BrowserRouter>
+      <Link to="/">Home</Link>{' '}
+      <Link to={{pathname: '/overview'}}>overview</Link>{' '}
+      <Link to="/call">call</Link>
       <Switch>
-        <Route exact path="/" component={NameInput} />
+        <Route  path="/#" component={NameInput} />
         <Route exact path="/overview" component={Overview} />
         <Route exact path="/call" component={Call} />
+        <Route render={() => <h1>Page not found</h1>} />
       </Switch>
     </BrowserRouter>
+</div>
   );
 };
 
