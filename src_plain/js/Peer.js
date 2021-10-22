@@ -4,26 +4,48 @@ import Peer from 'peerjs';
 
 
 const peer = new Peer();
+var conn = null;
 
-const getID = () => { return peer.id };
-
-const connectToID = (another_id) => {
-//connect 
-	const conn = peer.connect(another_id);
-	conn.on('open', () => {
-		conn.send('hi!');
-	});
-
-//receive
-	peer.on('connection', (conn) => {
+const getID = (receiveMessages, connectionIsUp) => { 
+  //receive
+	peer.on('connection', (conn_in) => {
+		conn = conn_in;
+		console.log('incomming connection detected');
 		conn.on('data', (data) => {
-			// Will print 'hi!'
-			console.log(data);
+		  console.log('incomming data detected:', data);
+			receiveMessages(data);
+			//console.log(data, " from calee ");
 		});
 		conn.on('open', () => {
-			conn.send('hello!');
+		  console.log('incomming open detected');
+			conn.send('pong from '+peer.id);
+      connectionIsUp();
 		});
 	});
+	return peer.id 
+
+};
+
+	  //Peer.connectToID(another, receiveMessages, connectionIsUp);
+const connectToID = (another_id, receiveMessages) => {
+  //connect 
+	conn = peer.connect(another_id);
+	conn.on('open', () => {
+		console.log('outgoing open detected sending ping');
+		conn.send('ping from '+peer.id+' to '+another_id);
+	});
+	conn.on('data', function(data) {
+    console.log('Received', data);
+			receiveMessages(data);
+  });
+
+}
+
+const sendMessage = (msg) => {
+  if (conn && conn.open) {
+		console.log('outgoing msg detected', msg );
+    conn.send(msg);
+  }
 }
 
 const callToID = (another_id) => {
@@ -54,5 +76,6 @@ const callToID = (another_id) => {
 export default {
 	getID: getID,
 	connectToID: connectToID,
+	sendMessage: sendMessage,
 	callToID: callToID,
 }
