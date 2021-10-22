@@ -5,6 +5,7 @@ import Peer from 'peerjs';
 
 const peer = new Peer();
 var conn = null;
+var msg = [];
 
 const getID = (receiveMessages, connectionIsUp) => { 
   //receive
@@ -13,7 +14,8 @@ const getID = (receiveMessages, connectionIsUp) => {
 		console.log('incomming connection detected');
 		conn.on('data', (data) => {
 		  console.log('incomming data detected:', data);
-			receiveMessages(data);
+		  msg.push("\n< "+data);
+			receiveMessages(data, msg);
 			//console.log(data, " from calee ");
 		});
 		conn.on('open', () => {
@@ -36,15 +38,17 @@ const connectToID = (another_id, receiveMessages) => {
 	});
 	conn.on('data', function(data) {
     console.log('Received', data);
-			receiveMessages(data);
+		  msg.push("\n< "+data);
+			receiveMessages(data, msg);
   });
 
 }
 
-const sendMessage = (msg) => {
+const sendMessage = (msg_) => {
   if (conn && conn.open) {
-		console.log('outgoing msg detected', msg );
-    conn.send(msg);
+		console.log('outgoing msg detected', msg_ );
+    conn.send(msg_);
+		  msg.push("\n> "+msg_);
   }
 }
 

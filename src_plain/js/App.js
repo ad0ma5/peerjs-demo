@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Peer from './Peer.js';
 
 const  App = () => {
+
   // Declare a new state variable, which we'll call "count"
   const [user, setUser] = useState("");
   const [userSet, setUserSet] = useState(false);
@@ -13,6 +14,7 @@ const  App = () => {
   const [msg, setMsg] = useState([]);
   const [chatSet, setChatSet] = useState(false);
   const [tmpMsg, setTmpMsg] = useState("");
+	const [newMsg, setNewMsg] = useState(0);
 
 	useEffect(() => {
     var loadID = "";
@@ -25,6 +27,14 @@ const  App = () => {
 
 	}, [external_id] );
 	
+	useEffect(() => {
+		console.log("use effect state" , newMsg); // this prints the updated value
+	}, [newMsg]); // this will be triggered only when state value is different
+
+	useEffect(() => {
+		console.log("use effect state" , newMsg); // this prints the updated value
+	}, [newMsg]); // this will be triggered only when state value is different
+
 	const updateQS = (val) => {
 	  var url = window.location.href;       
 		var urlSplit = url.split( "?" );       
@@ -37,18 +47,24 @@ const  App = () => {
     updateQS(val);
 	};
 
-	const receiveMessages = (msg_in) => {
-	  var m = msg;
-		m.push("\n< "+msg_in);
-		setMsg(m);	
+	const receiveMessages = (msg_in, all) => {
+		console.log("RECEIVE",msg_in, all);
+	  //const m = msg.slice(); //[...msg];
+		//m.push("\n< "+msg_in);
+
+		console.log("RECEIVE",all, msg_in);
+		setMsg(all);	
+		const nm = newMsg+1;
+    setNewMsg(nm);
 	};
-  
 	const sendMessages = (msg_in) => {
 	  Peer.sendMessage(msg_in);
-	  var m = msg;
-		m.push("\n< "+msg_in);
+	  const m = msg.slice(); // [...msg];
+		//m.push("\n> "+msg_in);
 		setMsg(m);
     setTmpMsg("");
+		const nm = newMsg+1;
+    setNewMsg(nm);
 	};
 
   const connectionIsUp = () => {
@@ -56,7 +72,7 @@ const  App = () => {
 	}
 
 	const getPeerID = () => {
-		var l_id = Peer.getID(receiveMessages, connectionIsUp);
+		var l_id = Peer.getID(receiveMessages.bind(this), connectionIsUp.bind(this));
 		if(l_id){
       set_id(l_id);
 			set_idSet(true);
@@ -64,7 +80,16 @@ const  App = () => {
 	}
 
 	const connectChat = (another) => {
-	  Peer.connectToID(another,receiveMessages);
+	  Peer.connectToID(another,receiveMessages.bind(this));
+	};
+
+
+	const printMsg = () => {
+		var i = 0;
+	  return msg.map( m => {
+			i++;
+		  return <div key={i}>{m}</div>
+		});
 	};
 
 	//render
@@ -90,7 +115,7 @@ const  App = () => {
   if(!hide){
 	  return(
 
-		<div>
+		<div key={msg}>
 			<h3  className="padding border" > user = <a id="" href=""></a>{user}</h3>
 			<h3  className="padding border" > local_id = <a id="peer_id" href={"?id="+id}>{id}</a></h3>
 			<h3  className="padding border" >
@@ -102,7 +127,7 @@ const  App = () => {
 			>
 			Hide 
 			</button>
-			<textarea>
+      { printMsg() }
 			{
 				/*
          msg.length === 0 ? null : msg.map( (m) =>
@@ -110,8 +135,7 @@ const  App = () => {
 				 )
 				 */
 			}
-			</textarea>
-			  <input type="text" value={tmpMsg} onChange={ (e) => setTmpMsg(e.target.value) } />  = {tmpMsg} <button onClick={() => sendMessages(tmpMsg)}> send </button> 
+			{newMsg} <input type="text" value={tmpMsg} onChange={ (e) => setTmpMsg(e.target.value) } />  = {tmpMsg} <button onClick={() => sendMessages(tmpMsg)}> send </button> 
 		</div>
 	 );
 	 } else {
