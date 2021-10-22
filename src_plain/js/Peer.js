@@ -14,7 +14,7 @@ const getID = (receiveMessages, connectionIsUp) => {
 		console.log('incomming connection detected');
 		conn.on('data', (data) => {
 		  console.log('incomming data detected:', data);
-		  msg.push("\n< "+data);
+		  //msg.push("\n< "+data);
 			receiveMessages(data, msg);
 			//console.log(data, " from calee ");
 		});
@@ -37,8 +37,8 @@ const connectToID = (another_id, receiveMessages) => {
 		conn.send('ping from '+peer.id+' to '+another_id);
 	});
 	conn.on('data', function(data) {
-    console.log('Received', data);
-		  msg.push("\n< "+data);
+    console.log('Received connectToID:', data);
+		  //msg.push("\n< "+data);
 			receiveMessages(data, msg);
   });
 
@@ -48,7 +48,7 @@ const sendMessage = (msg_) => {
   if (conn && conn.open) {
 		console.log('outgoing msg detected', msg_ );
     conn.send(msg_);
-		  msg.push("\n> "+msg_);
+		  //msg.push("\n> "+msg_);
   }
 }
 

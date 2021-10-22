@@ -32,8 +32,8 @@ const  App = () => {
 	}, [newMsg]); // this will be triggered only when state value is different
 
 	useEffect(() => {
-		console.log("use effect state" , newMsg); // this prints the updated value
-	}, [newMsg]); // this will be triggered only when state value is different
+		console.log("use effect msg" , msg); // this prints the updated value
+	}, [msg]); // this will be triggered only when state value is different
 
 	const updateQS = (val) => {
 	  var url = window.location.href;       
@@ -48,19 +48,19 @@ const  App = () => {
 	};
 
 	const receiveMessages = (msg_in, all) => {
-		console.log("RECEIVE",msg_in, all);
-	  //const m = msg.slice(); //[...msg];
-		//m.push("\n< "+msg_in);
+		console.log("RECEIVE",msg_in, all, msg);
+	  const m = msg.slice(); //[...msg];
+		m.push("\n< "+msg_in);
 
-		console.log("RECEIVE",all, msg_in);
-		setMsg(all);	
+		console.log("RECEIVE",m, msg_in, msg );
+		setMsg(m);	
 		const nm = newMsg+1;
     setNewMsg(nm);
 	};
 	const sendMessages = (msg_in) => {
 	  Peer.sendMessage(msg_in);
 	  const m = msg.slice(); // [...msg];
-		//m.push("\n> "+msg_in);
+		m.push("\n> "+msg_in);
 		setMsg(m);
     setTmpMsg("");
 		const nm = newMsg+1;
@@ -72,7 +72,7 @@ const  App = () => {
 	}
 
 	const getPeerID = () => {
-		var l_id = Peer.getID(receiveMessages.bind(this), connectionIsUp.bind(this));
+		var l_id = Peer.getID(receiveMessages, ()=>connectionIsUp);
 		if(l_id){
       set_id(l_id);
 			set_idSet(true);
@@ -80,7 +80,7 @@ const  App = () => {
 	}
 
 	const connectChat = (another) => {
-	  Peer.connectToID(another,receiveMessages.bind(this));
+	  Peer.connectToID(another,()=>receiveMessages);
 	};
 
 
