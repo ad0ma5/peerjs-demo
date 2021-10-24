@@ -1,6 +1,12 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Peer from './Peer.js';
+import User from './components/User.js';
+import PeerID from './components/PeerID.js';
+import ExternalID from './components/ExternalID.js';
+import MsgList from './components/MsgList.js';
+import VideoCall from './components/VideoCall.js';
+import VideoTest from './components/VideoTest1.js';
 
 const  App = () => {
 
@@ -15,6 +21,10 @@ const  App = () => {
   const [chatSet, setChatSet] = useState(false);
   const [tmpMsg, setTmpMsg] = useState("");
 	const [newMsg, setNewMsg] = useState(0);
+	const [inNewMsg, setInNewMsg] = useState("");
+  const [remoteStream, setRemoteStream] = useState(false);
+  const [localStream, setLocalStream] = useState(false);
+  const [callSet, setCallSet] = useState(false);
 
 	useEffect(() => {
     var loadID = "";
@@ -27,13 +37,33 @@ const  App = () => {
 
 	}, [external_id] );
 	
-	useEffect(() => {
-		console.log("use effect state" , newMsg); // this prints the updated value
-	}, [newMsg]); // this will be triggered only when state value is different
 
 	useEffect(() => {
-		console.log("use effect msg" , msg); // this prints the updated value
-	}, [msg]); // this will be triggered only when state value is different
+		//console.log("use effect msg" , msg, inNewMsg); // this prints the updated value
+	  const m = msg.slice(); //[...msg];
+		m.push("\n< "+inNewMsg);
+
+		console.log("RECEIVE effect",m,  msg );
+		setMsg(m);	
+		const nm = newMsg+1;
+    setNewMsg(nm);
+	}, [ inNewMsg ]); // this will be triggered only when state value is different
+
+	useEffect(() => {
+
+		console.log('effect incomming open detected ',id);
+		if(id && id != "")
+		  sendMessages('open '+id);
+
+	}, [ chatSet ]); // this will be triggered only when state value is different
+
+	useEffect(() => {
+
+		console.log('effect incomming call  detected ',id);
+		if(id && id != "")
+		  sendMessages('open '+id);
+
+	}, [  callSet, localStream ]); // this will be triggered only when state value is different
 
 	const updateQS = (val) => {
 	  var url = window.location.href;       
@@ -47,16 +77,11 @@ const  App = () => {
     updateQS(val);
 	};
 
-	const receiveMessages = (msg_in, all) => {
-		console.log("RECEIVE",msg_in, all, msg);
-	  const m = msg.slice(); //[...msg];
-		m.push("\n< "+msg_in);
-
-		console.log("RECEIVE",m, msg_in, msg );
-		setMsg(m);	
-		const nm = newMsg+1;
-    setNewMsg(nm);
+	const receiveMessages = (msg_in) => {
+		console.log("RECEIVE",msg_in, msg);
+    setInNewMsg(msg_in);
 	};
+
 	const sendMessages = (msg_in) => {
 	  Peer.sendMessage(msg_in);
 	  const m = msg.slice(); // [...msg];
@@ -71,8 +96,12 @@ const  App = () => {
     setChatSet(true);
 	}
 
+	const playRemoteStream = (stream) => {
+    setRemoteStream(stream); 
+	}
+
 	const getPeerID = () => {
-		var l_id = Peer.getID(receiveMessages, ()=>connectionIsUp);
+		var l_id = Peer.getID(setExternal_id, receiveMessages, connectionIsUp, playRemoteStream);
 		if(l_id){
       set_id(l_id);
 			set_idSet(true);
@@ -80,68 +109,72 @@ const  App = () => {
 	}
 
 	const connectChat = (another) => {
-	  Peer.connectToID(another,()=>receiveMessages);
+	  Peer.connectToID(another,receiveMessages, connectionIsUp);
 	};
 
-
-	const printMsg = () => {
-		var i = 0;
-	  return msg.map( m => {
-			i++;
-		  return <div key={i}>{m}</div>
-		});
+	const connectCall = (another) => {
+	  Peer.callToID(another,setRemoteStream, connectionIsUp, setCallSet);
 	};
+
 
 	//render
-  if(userSet == false){
-    return (
-		<div>
-		  <h3  className="padding border" >
-		    <input type="text" value={user} onChange={ (e) => setUser(e.target.value) } /> user = {user} <button onClick={ () => setUserSet(true) } > Set </button> 
-			</h3>
-		</div>
-		);
-	}
 
-	if(idSet == false){
-    return (
-		<div>
-	  	<h3  className="padding border" > user = {user}</h3>
-		  <h3  className="padding border" > local_id = <a id="" href=""></a>{id} <button onClick={ () => getPeerID() } > Connect </button> </h3>
-		</div>
-		);
-    
-	}
   if(!hide){
 	  return(
 
 		<div key={msg}>
-			<h3  className="padding border" > user = <a id="" href=""></a>{user}</h3>
-			<h3  className="padding border" > local_id = <a id="peer_id" href={"?id="+id}>{id}</a></h3>
-			<h3  className="padding border" >
-			  <input type="text" value={external_id} onChange={ (e) => updateE_id(e.target.value) } /> external_id = {external_id} <button> Call </button> <button onClick={() => connectChat(external_id)}> Chat </button> 
-			</h3>
-			
 			<button 
 				onClick={ () => setHide(true) }
 			>
-			Hide 
+			  Hide 
 			</button>
-      { printMsg() }
-			{
-				/*
-         msg.length === 0 ? null : msg.map( (m) =>
-					  {return m}            
-				 )
-				 */
-			}
+			<User
+			  user={user}
+			  setUser={setUser}
+			  userSet={userSet}
+				setUserSet={setUserSet}
+			/>
+			<PeerID
+			  id={id}
+        idSet={idSet}
+			  getPeerID={getPeerID}
+			/>
+			<ExternalID
+			  updateE_id={updateE_id}
+			  external_id={external_id}
+			  chatSet={chatSet}
+        connectChat={connectChat}
+			  connectCall={connectCall}
+			/>
+      <MsgList
+        msg={msg}
+			/>
 			{newMsg} <input type="text" value={tmpMsg} onChange={ (e) => setTmpMsg(e.target.value) } />  = {tmpMsg} <button onClick={() => sendMessages(tmpMsg)}> send </button> 
+			{localStream}
+			   <VideoCall
+           localStream={localStream}
+			     remoteStream={remoteStream}
+			     callSet={callSet}
+			   />
+			{callSet}
+      <VideoTest />
 		</div>
-	 );
+	  )
 	 } else {
 		 return(
-			 <div onClick={() => setHide(false)}>
+			 <div>
+			   <button  
+			     onClick={() => setHide(false)}
+			   >
          Show
+			   </button>
+
+			   <VideoCall
+           localStream={localStream}
+			     remoteStream={remoteStream}
+			     callSet={callSet}
+
+			   />
 		   </div>
 		 );
 	 }
