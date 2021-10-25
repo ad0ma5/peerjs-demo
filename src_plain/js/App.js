@@ -18,6 +18,7 @@ const  App = () => {
   const [idSet, set_idSet] = useState(false);
   const [hide, setHide] = useState(false);
   const [msg, setMsg] = useState([]);
+  const [start, setStart] = useState(false);
   const [chatSet, setChatSet] = useState(false);
   const [tmpMsg, setTmpMsg] = useState("");
 	const [newMsg, setNewMsg] = useState(0);
@@ -34,36 +35,36 @@ const  App = () => {
 			loadID = urlSplit[1].replace( "id=", "" );
 			if(loadID) setExternal_id(loadID);
 		}
-
 	}, [external_id] );
 	
 
 	useEffect(() => {
-		//console.log("use effect msg" , msg, inNewMsg); // this prints the updated value
-	  const m = msg.slice(); //[...msg];
-		m.push("\n< "+inNewMsg);
-
-		console.log("RECEIVE effect",m,  msg );
-		setMsg(m);	
-		const nm = newMsg+1;
-    setNewMsg(nm);
+		if(newMsg > 0){
+			//console.log("use effect msg" , msg, inNewMsg); // this prints the updated value
+			const m = msg.slice(); //[...msg];
+			m.push("\n< "+inNewMsg);
+			console.log("RECEIVE effect",m,  msg );
+			setMsg(m);	
+			const nm = newMsg+1;
+			setNewMsg(nm);
+		}
 	}, [ inNewMsg ]); // this will be triggered only when state value is different
 
 	useEffect(() => {
-
-		console.log('effect incomming open detected ',id);
-		if(id && id != "")
-		  sendMessages('open '+id);
-
+    if(callSet){
+		  console.log('effect incomming open detected ',id);
+		  if(id && id != "")
+		    sendMessages('open '+id);
+		}
 	}, [ chatSet ]); // this will be triggered only when state value is different
 
 	useEffect(() => {
-
-		console.log('effect incomming call  detected ',id);
-		if(id && id != "")
-		  sendMessages('open '+id);
-
-	}, [  callSet, localStream ]); // this will be triggered only when state value is different
+    if(callSet){
+		  console.log('effect incomming call  detected ',id);
+		  if(id && id != "")
+		    sendMessages('open '+id);
+		}
+	}, [  callSet, remoteStream]); // this will be triggered only when state value is different
 
 	const updateQS = (val) => {
 	  var url = window.location.href;       
@@ -101,7 +102,7 @@ const  App = () => {
 	}
 
 	const getPeerID = () => {
-		var l_id = Peer.getID(setExternal_id, receiveMessages, connectionIsUp, playRemoteStream);
+		var l_id = Peer.getID(setExternal_id, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet);
 		if(l_id){
       set_id(l_id);
 			set_idSet(true);
@@ -113,7 +114,12 @@ const  App = () => {
 	};
 
 	const connectCall = (another) => {
-	  Peer.callToID(another,setRemoteStream, connectionIsUp, setCallSet);
+	  Peer.callToID(another,setRemoteStream, localStream, setCallSet);
+	};
+
+  const returnStream = (stream) => {
+		console.log("local stream returned to app");
+		setLocalStream(stream);
 	};
 
 
@@ -150,14 +156,21 @@ const  App = () => {
         msg={msg}
 			/>
 			{newMsg} <input type="text" value={tmpMsg} onChange={ (e) => setTmpMsg(e.target.value) } />  = {tmpMsg} <button onClick={() => sendMessages(tmpMsg)}> send </button> 
-			{localStream}
-			   <VideoCall
-           localStream={localStream}
-			     remoteStream={remoteStream}
-			     callSet={callSet}
-			   />
-			{callSet}
-      <VideoTest />
+			<br />
+      <VideoTest
+			  stream={remoteStream}
+			  isRemote={true}
+			  callSet={callSet}
+			  start={start}
+			  setStart={setStart}
+			/>
+      <VideoTest
+			  returnStream={returnStream}
+			  isRemote={false}
+			  start={start}
+			  setStart={setStart}
+			/>
+
 		</div>
 	  )
 	 } else {
@@ -169,12 +182,20 @@ const  App = () => {
          Show
 			   </button>
 
-			   <VideoCall
-           localStream={localStream}
-			     remoteStream={remoteStream}
-			     callSet={callSet}
-
-			   />
+			<br />
+      <VideoTest
+			  stream={remoteStream}
+			  isRemote={true}
+			  callSet={callSet}
+			  start={start}
+			  setStart={setStart}
+			/>
+      <VideoTest
+			  returnStream={returnStream}
+			  isRemote={false}
+			  start={start}
+			  setStart={setStart}
+			/>
 		   </div>
 		 );
 	 }
