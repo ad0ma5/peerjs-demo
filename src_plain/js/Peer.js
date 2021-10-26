@@ -3,14 +3,20 @@ import Peer from 'peerjs';
 //Create a Peer
 
 
-const peer = new Peer(null, {
-                        debug: 2
-                    });
+var peer = null;
 var conn = null;
-
-
+  peer = new Peer(null, {
+      	host: 'b5277.k.dedikuoti.lt',
+	      port: 9000,
+	      path: '/peerjs',
+        debug: 2
+                    });
+/*
+*/
 const getID = (setExternal, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet) => { 
+	console.log("getId");
   //receive
+
 	peer.on('connection', (conn_in) => {
 		conn = conn_in;
 		console.log('incomming connection detected',conn);
@@ -29,6 +35,7 @@ const getID = (setExternal, receiveMessages, connectionIsUp, setRemoteStream, lo
 			setCallSet(true);
 		});
 	});
+	console.log("gotId", peer.id);
 	return peer.id 
 
 };

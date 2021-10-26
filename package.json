@@ -4,11 +4,13 @@
   "description": "",
   "scripts": {
     "start": "parcel src/index.html",
-    "start_p": "parcel src_plain/index.html --https",
+    "start_p": "parcel src_plain/index.html server.js  --cert cert.pem --key key.pem",
     "start_r": "parcel src_plain/receive.html",
-    "start_a": "parcel src_plain/test.html --https ",
-    "build": "parcel build src/index.html",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start_a": "parcel src_plain/test.html server --https" ,
+    "build": "parcel build src_plain/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1",
+		"serve": "node server",
+		"serve_e": "node serverExpress"
   },
   "source": "src/index.html",
   "alias": {
@@ -20,6 +22,7 @@
   "dependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-react-app": "^3.1.2",
+    "peer": "^0.6.1",
     "peerjs": "^1.3.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
