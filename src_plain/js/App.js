@@ -1,16 +1,21 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import Peer from './Peer.js';
+
 import User from './components/User.js';
 import PeerID from './components/PeerID.js';
 import ExternalID from './components/ExternalID.js';
 import MsgList from './components/MsgList.js';
 import VideoCall from './components/VideoCall.js';
+import Login from './components/Login.js';
+import Channel from './components/Channel.js';
+
+import httpGet from "./httpGet.js";
 
 const  App = () => {
 
   // Declare a new state variable, which we'll call "count"
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState({});
   const [userSet, setUserSet] = useState(false);
   const [external_id, setExternal_id] = useState("");
   const [id, set_id] = useState("");
@@ -25,10 +30,37 @@ const  App = () => {
   const [remoteStream, setRemoteStream] = useState(false);
   const [localStream, setLocalStream] = useState(false);
   const [callSet, setCallSet] = useState(false);
+  const [session, setSession] = useState({});
+
+	const setResponse = ( response ) => {
+    console.log("response from httpGet", response);
+		if(response.status === "ok"){
+      setSession({});
+		}
+	}
+
+	const startSession = () => {
+		const query = "add&&email="+user.email+"&peer_id="+id+"&online=true";
+	  httpGet(setResponse, query, "sessions");
+	};
+
+	const endSession = () => {
+		const query = "remove&&email="+user.email+"&peer_id="+id+"&online=true";
+	  httpGet(setResponse, query, "sessions");
+	};
 
 	useEffect(() => {
-		if(id) set_idSet(true);
+		console.log('session changed');
+	}, [session] );
+
+	useEffect(() => {
+		if(id){
+			set_idSet(true);
+		  //start session
+      startSession();
+		}
 	}, [id] );
+
 	useEffect(() => {
     var loadID = "";
 	  var url = window.location.href;       
@@ -115,6 +147,13 @@ const  App = () => {
 	  Peer.callToID(another,setRemoteStream, localStream, setCallSet);
 	};
 
+	const disconnectPeer = () => {
+    Peer.disconnect();
+		set_id("");
+    endSession();
+		set_idSet(false);
+	};
+
   const returnStream = (stream) => {
 		console.log("local stream returned to app");
 		setLocalStream(stream);
@@ -122,6 +161,16 @@ const  App = () => {
 
 
 	//render
+  if(!user.id){
+	  return(
+	  <Login 
+			  user={user}
+		  setUser={setUser}	
+			  userSet={userSet}
+				setUserSet={setUserSet}
+		/>
+		);
+	}
 
   if(!hide){
 	  return(
@@ -142,6 +191,13 @@ const  App = () => {
 			  id={id}
         idSet={idSet}
 			  getPeerID={getPeerID}
+			  online={idSet}
+			  disconnect={disconnectPeer}
+			/>
+			<Channel 
+			  id={id}
+        selectPeer={updateE_id}
+        idSet={idSet}
 			/>
 			<ExternalID
 			  updateE_id={updateE_id}

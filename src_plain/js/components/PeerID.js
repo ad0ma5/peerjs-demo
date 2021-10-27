@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PeerID = ({ id, idSet, getPeerID }) => {
+const PeerID = ({ id, idSet, getPeerID, online, disconnect }) => {
 
 	//render
 	if(idSet == false){
@@ -12,7 +12,7 @@ const PeerID = ({ id, idSet, getPeerID }) => {
 	}else{
     return (
 			<div  className="padding border" >
-			local_id = <a className="peer_id" href={"?id="+id}>{id}</a>
+			local_id = <a className="peer_id" href={"?id="+id}>{id}</a> <button onClick={()=> disconnect() } >disconnect</button>
 			</div>
 		);
 	}

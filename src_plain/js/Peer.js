@@ -80,9 +80,18 @@ const callToID = (another_id, setRemoteStream, localStream, setCallSet) => {
 	});
 
 }
+
+const disconnect = () => {
+  peer.disconnect();
+
+
+}
+
+
 export default {
 	getID: getID,
 	connectToID: connectToID,
 	sendMessage: sendMessage,
 	callToID: callToID,
+	disconnect: disconnect
 }

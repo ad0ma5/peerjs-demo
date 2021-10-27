@@ -4,20 +4,17 @@ const actions = {
 	get: {},
 	add: {},
 	remove: {},
-	login: {}
 };
 
-
-function accounts(req, res, next)  {
-	console.log('accounts');
+function sessions(req, res, next)  {
   if(!req.query.action || !actions[req.query.action] ){
 	  res.send(JSON.stringify({status:"nok", data:req.query}))
 		return
   }
 	const action = req.query.action;
-	const content = '{"accounts":{}}';
+	const content = '{"accounts": {}}';
   const dataFolder = './data/';
-  const dataPath = dataFolder+'data.json';
+  const dataPath = dataFolder+'sessions.json';
 	var data = "";
 	checkFolder(dataPath, dataFolder, res);
 	if(checkFile(dataPath, dataFolder, res)){
@@ -26,27 +23,29 @@ function accounts(req, res, next)  {
 	if(!data) data = content;
 
   if( action === "get" ){
+		var database = JSON.parse(data);
 		if( req.query.email ){
-		  var database = JSON.parse(data);
 		  const user = database.accounts[req.query.email];
 		  
       res.send(JSON.stringify({status: "ok", data: user}));
 			return
 		}
-    res.send(data);
+    res.send(JSON.stringify({status: "ok", data: database}));
 		return
 	}
+
   if( action === "add" ){
-		var newAccount = req.query;
-		newAccount.id = Date.now();
-    delete newAccount.action;
+		var newSession = req.query;
+		newSession.id = Date.now();
+    delete newSession.action;
 		var database = JSON.parse(data);
 		if(!database.accounts) database.accounts = {};
-		database.accounts[newAccount.email] = newAccount;
+		database.accounts[newSession.email] = newSession;
 	  saveDB(dataPath, dataFolder, res, JSON.stringify(database));
-    res.send(JSON.stringify({status: "ok", data: newAccount}));
+    res.send(JSON.stringify({status: "ok", data: newSession}));
 		return
 	}
+
   if( action === "remove" && req.query.email ){
 
 		var database = JSON.parse(data);
@@ -55,16 +54,7 @@ function accounts(req, res, next)  {
     res.send(JSON.stringify({status: "ok"}));
 		return
 	}
-	if( action === "login"){
-		var database = JSON.parse(data);
-		  const user = database.accounts[req.query.email];
-    if(user.pass === req.query.pass){
-      res.send(JSON.stringify({status: "ok", data: user}));
-		  return
-		}
-	}
-
-	  res.send(JSON.stringify({status:"nok", data:req.query}))
+	res.send(JSON.stringify(req.query))
 }
 
-module.exports = accounts;
+module.exports = sessions;
