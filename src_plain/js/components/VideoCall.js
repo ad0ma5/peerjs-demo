@@ -1,49 +1,50 @@
-import React, { useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react'
 
-const VideoCall = ({remoteStream, localStream,  callSet}) => {
 
-  const refVideoIn = useRef(null);
-  const refVideoOut = useRef(null);
+export default function VideoCall({stream, returnStream, isRemote, callSet, start, setStart, ...props }) {
+  const [sObject, setSObject] = useState(false);
+  const [sObjectA, setSObjectA] = useState(false);
+	  const refVideo = useRef(null)
 
-	useEffect(() => {
-			if(!callSet) return
-console.log('effect',refVideoIn ,refVideoOut );
-			    if (!refVideoIn.current) return
-			    refVideoIn.current.srcObject = remoteStream;
-			    refVideoIn.current.A = "OK";
-			    if (!refVideoOut.current) return
-			    refVideoOut.current.srcObject = localStream;
-			    refVideoOut.current.A = "OK";
-			  }, [callSet])
-	//render
-	//if(chatSet == false){
-    return (
-			<div className="padding border" >
-			  { !callSet ? "NO CALL" : "IN CALL" }
-				<div className="inline">
-					<div>video_out</div>
-			    {  
-					<video id="video_out" ref={refVideoOut} onLoadedMetadata={()=>{this.play();this.mute()}}></video>
-					}
-				</div>
-				<div className="inline">
-					<div>video_in</div>
-			    {   
-					<video id="video_in" ref={refVideoIn} onLoadedMetadata={()=>{this.play();}}></video>
-					}
-				</div>
-			</div>
-		);
-	/*
-	}else{
-    return (
-			<div  className="padding border" > 
-			connected to {external_id} chat.	<button> Call </button> 
-			</div>
-		);
-	}
-*/
-};
+	  useEffect(() => {
+			if(!start) return
+			console.log('video effect',refVideo ,refVideo.current );
+			if (!refVideo.current) return
+			if(!sObject) return
+			refVideo.current.srcObject = sObject;
+			refVideo.current.A = "OK";
+      console.log(isRemote,'video effect set',refVideo);
 
-export default VideoCall;
+			if(!isRemote) 
+			refVideo.current.muted = true;
+		}, [sObjectA])
 
+	  useEffect(() => {
+			if(stream && isRemote) {
+				setStart(true);
+				handleVideo(stream);
+				return;
+			}
+			if(!isRemote){
+			  if(!start) return
+				console.log('mount local video');
+				navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+				if (navigator.getUserMedia) {
+					navigator.getUserMedia({video: true, audio: true}, handleVideo, videoError);
+				}
+			}
+		}, [start])
+  	const handleVideo = (stream)=>{
+			if(!start) return
+      console.log('handleVideo');
+			    // Update the state, triggering the component to re-render with the correct stream
+      setSObject(stream);
+      setSObjectA(true);
+			if(!isRemote) returnStream(stream);
+		}
+	  const videoError = (err)=>{
+      console.log('error',err);
+		}
+
+	  return <video ref={refVideo} {...props} onClick={()=>setStart(true)} autoPlay />
+}

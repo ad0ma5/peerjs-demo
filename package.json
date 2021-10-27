@@ -3,22 +3,20 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "parcel src/index.html",
-    "start_p": "parcel src_plain/index.html server.js  --cert cert.pem --key key.pem",
+    "start_p": "parcel src_plain/index.html  --cert cert.pem --key key.pem",
     "start_r": "parcel src_plain/receive.html",
-    "start_a": "parcel src_plain/test.html server --https" ,
+    "start_a": "parcel src_plain/test.html  --https" ,
     "build": "parcel build src_plain/index.html",
     "test": "echo \"Error: no test specified\" && exit 1",
-		"serve": "node server",
 		"serve_e": "node serverExpress"
   },
-  "source": "src/index.html",
+  "source": "./src_plain/index.html",
   "alias": {
-    "prop-types": "./src/prop-types.js"
+    "prop-types": "./src_plain/prop-types.js"
   },
   "keywords": [],
-  "author": "Florian Rappl",
-  "license": "MIT",
+  "author": "D",
+  "license": "",
   "dependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-react-app": "^3.1.2",

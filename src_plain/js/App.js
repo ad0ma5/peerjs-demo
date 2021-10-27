@@ -6,7 +6,6 @@ import PeerID from './components/PeerID.js';
 import ExternalID from './components/ExternalID.js';
 import MsgList from './components/MsgList.js';
 import VideoCall from './components/VideoCall.js';
-import VideoTest from './components/VideoTest1.js';
 
 const  App = () => {
 
@@ -27,6 +26,9 @@ const  App = () => {
   const [localStream, setLocalStream] = useState(false);
   const [callSet, setCallSet] = useState(false);
 
+	useEffect(() => {
+		if(id) set_idSet(true);
+	}, [id] );
 	useEffect(() => {
     var loadID = "";
 	  var url = window.location.href;       
@@ -102,11 +104,7 @@ const  App = () => {
 	}
 
 	const getPeerID = () => {
-		var l_id = Peer.getID(setExternal_id, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet);
-		if(l_id){
-      set_id(l_id);
-			set_idSet(true);
-		}
+		Peer.getID(set_id, setExternal_id, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet);
 	}
 
 	const connectChat = (another) => {
@@ -157,14 +155,14 @@ const  App = () => {
 			/>
 			{newMsg} <input type="text" value={tmpMsg} onChange={ (e) => setTmpMsg(e.target.value) } />  = {tmpMsg} <button onClick={() => sendMessages(tmpMsg)}> send </button> 
 			<br />
-      <VideoTest
+      <VideoCall
 			  stream={remoteStream}
 			  isRemote={true}
 			  callSet={callSet}
 			  start={start}
 			  setStart={setStart}
 			/>
-      <VideoTest
+      <VideoCall
 			  returnStream={returnStream}
 			  isRemote={false}
 			  start={start}
@@ -183,14 +181,14 @@ const  App = () => {
 			   </button>
 
 			<br />
-      <VideoTest
+      <VideoCall
 			  stream={remoteStream}
 			  isRemote={true}
 			  callSet={callSet}
 			  start={start}
 			  setStart={setStart}
 			/>
-      <VideoTest
+      <VideoCall
 			  returnStream={returnStream}
 			  isRemote={false}
 			  start={start}
