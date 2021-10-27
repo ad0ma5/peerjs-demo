@@ -60,9 +60,9 @@ const sendMessage = (msg_) => {
 const callToID = (another_id, setRemoteStream, localStream, setCallSet) => {
 	//Call
 
-	console.log("callToID", another_id);
 	const call = peer.call(another_id, localStream);
-	setTimeout(()=>{console.log('donothing')},500);
+	setTimeout(()=>{console.log("timeout")},500);
+	console.log("callToID", another_id,call);
 	call.on('stream', (remoteStream) => {
 		// Show stream in some <video> element.
 		console.log('outgoing call incomming stream detected');

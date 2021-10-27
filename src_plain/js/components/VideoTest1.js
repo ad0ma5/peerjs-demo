@@ -14,6 +14,9 @@ export default function VideoTest({stream, returnStream, isRemote, callSet, star
 			refVideo.current.srcObject = sObject;
 			refVideo.current.A = "OK";
       console.log(isRemote,'video effect set',refVideo);
+
+			if(!isRemote) 
+			refVideo.current.muted = true;
 		}, [sObjectA])
 
 	  useEffect(() => {
@@ -27,7 +30,7 @@ export default function VideoTest({stream, returnStream, isRemote, callSet, star
 				console.log('mount local video');
 				navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
 				if (navigator.getUserMedia) {
-					navigator.getUserMedia({video: true}, handleVideo, videoError);
+					navigator.getUserMedia({video: true, audio: true}, handleVideo, videoError);
 				}
 			}
 		}, [start])
