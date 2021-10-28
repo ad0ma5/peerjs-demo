@@ -136,16 +136,25 @@ const  App = () => {
 	}
 
 	const getPeerID = () => {
-		Peer.getID(set_id, setExternal_id, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet);
+		Peer.getID(set_id, setExternal_id, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet, connectionClosed);
 	}
 
 	const connectChat = (another) => {
 	  Peer.connectToID(another,receiveMessages, connectionIsUp);
 	};
 
+	const closeChat = () => {
+	  Peer.closeChat();
+	}
+
 	const connectCall = (another) => {
-	  Peer.callToID(another,setRemoteStream, localStream, setCallSet);
+	  Peer.callToID(another,setRemoteStream, localStream, setCallSet, connectionClosed);
 	};
+
+	const connectionClosed = () => {
+    setChatSet(false);
+
+	}
 
 	const disconnectPeer = () => {
     Peer.disconnect();
@@ -205,6 +214,7 @@ const  App = () => {
 			  chatSet={chatSet}
         connectChat={connectChat}
 			  connectCall={connectCall}
+        closeChat={closeChat}
 			/>
       <MsgList
         msg={msg}

@@ -1,13 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 
 import httpGet from "../httpGet.js";
-
+var interval = null;
 const Channel = ({selectPeer, id, idSet}) => {
 	
   const [channel, setChannel] = useState({});
 
 	const printChannels = (ch) => {
-		console.log("channels list" , ch, channel, Object.keys(ch));
+		//console.log("channels list" , ch, channel, Object.keys(ch));
 	  return Object.keys(ch).map( key => {
 
       return (
@@ -20,7 +20,7 @@ const Channel = ({selectPeer, id, idSet}) => {
 	}
 
 	const setResponse = ( response ) => {
-    console.log("response from httpGet", response);
+    //console.log("response from httpGet", response);
 		if(response.status === "ok"){
       setChannel(response.data.accounts);
 		}
@@ -31,13 +31,35 @@ const Channel = ({selectPeer, id, idSet}) => {
 	  httpGet(setResponse, query, "sessions");
 	}
 
-	useEffect(() => {
+	if(id !== "")
+	if(interval === null){
+		interval = setInterval(function(){ 
+			//console.log("Hello"); 
+			getChannel();
+    }, 30000);
+	  //console.log("started interval", interval);
+	}
 
-    if(Object.keys(channel) < 1){
-		  console.log('channel et fired',channel, id);
+	useEffect(() => {
+		return () => {
+			//console.log('unmount channel clear interval=',interval);
+			clearInterval(interval);
+			interval = null;
+		};
+	}, []);
+
+	useEffect(() => {
+    if(Object.keys(channel).length < 1 && id !== ""){
+		  //console.log('channel et fired',channel, id);
 			getChannel();
 		}
-		console.log('channel changed',channel, id);
+		else if(id === "" && Object.keys(channel).length > 0 ){
+		  //console.log('channel empty fired',channel, id);
+      setChannel({});
+		}else{
+			//console.log('third option',id === "",  Object.keys(channel).length  );
+		}
+		//console.log('channel changed',channel, id);
 	}, [channel, id] );
 
 

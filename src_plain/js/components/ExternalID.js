@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ExternalID = ({ updateE_id, external_id, chatSet, connectChat, connectCall }) => {
+const ExternalID = ({ updateE_id, external_id, chatSet, connectChat, connectCall, closeChat }) => {
 
 	//render
 	if(chatSet == false){
@@ -14,7 +14,9 @@ const ExternalID = ({ updateE_id, external_id, chatSet, connectChat, connectCall
 	}else{
     return (
 			<div  className="padding border" > 
-			connected to {external_id} chat.	<button> Call </button> 
+			connected to {external_id} chat.	
+			<button onClick={() => closeChat(external_id)}>Close Chat </button> 
+			<button onClick={() => connectCall(external_id)}> Call </button> 
 			</div>
 		);
 	}

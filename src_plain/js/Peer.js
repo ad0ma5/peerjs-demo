@@ -7,7 +7,7 @@ var peer = null;
 var conn = null;
 /*
 */
-const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet) => { 
+const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet, connectionClosed) => { 
   //receive
 
   peer = new Peer(null, {
@@ -23,8 +23,13 @@ const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteSt
 		peer.on('connection', (conn_in) => {
 			conn = conn_in;
 			console.log('incomming connection detected',conn);
+			conn.on('open', () => { 
+			  console.log('incomming connectionaopen  detected',conn);
+				connectionIsUp(); 
+				setExternal(conn.peer); 
+			});
 			conn.on('data', receiveMessages);
-			conn.on('open', () => { connectionIsUp(); setExternal(conn.peer); });
+	    conn.on('close', connectionClosed);
 		});
 		
 		//Answer call
@@ -46,14 +51,20 @@ const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteSt
 };
 
 	  //Peer.connectToID(another, receiveMessages, connectionIsUp);
-const connectToID = (another_id, receiveMessages, connectionIsUp) => {
+const connectToID = (another_id, receiveMessages, connectionIsUp, connectionClosed) => {
 	const options = { label: "Private chat" };
   //connect 
 	conn = peer.connect(another_id, options);
 	console.log('peer connect',conn, peer);
 	conn.on('open', connectionIsUp);
 	conn.on('data', receiveMessages);
+	conn.on('close', connectionClosed);
 }
+ const closeChat = () => {
+	 console.log('close connection',conn,peer);
+	 if(conn)
+     conn.close();
+ }
 
 const sendMessage = (msg_) => {
   if (conn && conn.open) {
@@ -93,5 +104,6 @@ export default {
 	connectToID: connectToID,
 	sendMessage: sendMessage,
 	callToID: callToID,
-	disconnect: disconnect
+	disconnect: disconnect,
+  closeChat: closeChat
 }
