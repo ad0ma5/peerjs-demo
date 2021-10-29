@@ -28,7 +28,7 @@ const  App = () => {
 	const [newMsg, setNewMsg] = useState(0);
 	const [inNewMsg, setInNewMsg] = useState("");
   const [remoteStream, setRemoteStream] = useState(false);
-  const [localStream, setLocalStream] = useState(false);
+  const [localStream, setLocalStream] = useState(null);
   const [callSet, setCallSet] = useState(false);
   const [session, setSession] = useState({});
 
@@ -73,7 +73,7 @@ const  App = () => {
 	
 
 	useEffect(() => {
-		if(newMsg > 0){
+		if(true || newMsg > 0){
 			//console.log("use effect msg" , msg, inNewMsg); // this prints the updated value
 			const m = msg.slice(); //[...msg];
 			m.push("\n< "+inNewMsg);
@@ -82,7 +82,7 @@ const  App = () => {
 			const nm = newMsg+1;
 			setNewMsg(nm);
 		}
-	}, [ inNewMsg ]); // this will be triggered only when state value is different
+	}, [ inNewMsg  ]); // this will be triggered only when state value is different
 
 	useEffect(() => {
     if(callSet){
@@ -96,7 +96,7 @@ const  App = () => {
     if(callSet){
 		  console.log('effect incomming call  detected ',id);
 		  if(id && id != "")
-		    sendMessages('open '+id);
+		    sendMessages('open call '+id);
 		}
 	}, [  callSet, remoteStream]); // this will be triggered only when state value is different
 
@@ -118,6 +118,7 @@ const  App = () => {
 	};
 
 	const sendMessages = (msg_in) => {
+		console.log("SEND",msg_in, msg);
 	  Peer.sendMessage(msg_in);
 	  const m = msg.slice(); // [...msg];
 		m.push("\n> "+msg_in);
@@ -128,6 +129,7 @@ const  App = () => {
 	};
 
   const connectionIsUp = () => {
+    receiveMessages("connection is open");
     setChatSet(true);
 	}
 

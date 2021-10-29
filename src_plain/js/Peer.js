@@ -5,6 +5,7 @@ import Peer from 'peerjs';
 
 var peer = null;
 var conn = null;
+var call = null;
 /*
 */
 const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet, connectionClosed) => { 
@@ -24,17 +25,23 @@ const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteSt
 			conn = conn_in;
 			console.log('incomming connection detected',conn);
 			conn.on('open', () => { 
-			  console.log('incomming connectionaopen  detected',conn);
-				connectionIsUp(); 
 				setExternal(conn.peer); 
+				connectionIsUp(); 
+
+				receiveMessages("connection open to "+conn.peer);
+			  console.log('incomming connectionaopen  detected',conn);
 			});
-			conn.on('data', receiveMessages);
-	    conn.on('close', connectionClosed);
+			conn.on('data', (data) => {
+				receiveMessages(data);
+			  console.log('incomming DATA', data);
+			});
+	    //conn.on('close', connectionClosed);
 		});
 		
 		//Answer call
-		peer.on('call', (call) => {
-			console.log('incomming call detected',call);
+		peer.on('call', (call_in) => {
+			console.log('incomming call detected',call_in);
+			call = call_in;
 			call.answer(localStream); // Answer the call with an A/V stream.
 			call.on('stream', (remoteStream) => {
 				// Show stream in some <video> element.
@@ -45,7 +52,8 @@ const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteSt
 		});
 		console.log("gotId", peer.id);
 		set_id(peer.id);
-	},500);
+
+	},500);//end timeout
 	//return peer.id 
 
 };
@@ -55,10 +63,12 @@ const connectToID = (another_id, receiveMessages, connectionIsUp, connectionClos
 	const options = { label: "Private chat" };
   //connect 
 	conn = peer.connect(another_id, options);
-	console.log('peer connect',conn, peer);
+	console.log('peer connect',conn, peer, another_id);
 	conn.on('open', connectionIsUp);
 	conn.on('data', receiveMessages);
-	conn.on('close', connectionClosed);
+	//conn.on('close', connectionClosed);
+
+	console.log('peer connect DONE',conn, peer, another_id);
 }
  const closeChat = () => {
 	 console.log('close connection',conn,peer);
@@ -77,13 +87,14 @@ const callToID = (another_id, setRemoteStream, localStream, setCallSet) => {
 	//Call
 
 	console.log("callToID", another_id);
-	const call = peer.call(another_id, localStream);
+	call = peer.call(another_id, localStream);
+	/*
 	setTimeout(()=>{
-		console.log('donothing');
 	
 	},500);
-
-	call.on('stream', (remoteStream) => {
+  */
+		console.log('donothing');
+	  call.on('stream', (remoteStream) => {
 		// Show stream in some <video> element.
 		console.log('outgoing call incomming stream detected');
 		setRemoteStream(remoteStream);
