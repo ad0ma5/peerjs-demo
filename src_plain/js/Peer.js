@@ -35,7 +35,7 @@ const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteSt
 				receiveMessages(data);
 			  console.log('incomming DATA', data);
 			});
-	    //conn.on('close', connectionClosed);
+	    conn.on('close', connectionClosed);
 		});
 		
 		//Answer call
@@ -48,6 +48,11 @@ const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteSt
 				console.log('incomming call stream detected');
 				setRemoteStream(remoteStream);
 				setCallSet(true);
+			});
+			call.on('close', () => {
+				console.log('incomming call stream CLOSE detected');
+				setRemoteStream(false);
+				setCallSet(false);
 			});
 		});
 		console.log("gotId", peer.id);
@@ -66,14 +71,15 @@ const connectToID = (another_id, receiveMessages, connectionIsUp, connectionClos
 	console.log('peer connect',conn, peer, another_id);
 	conn.on('open', connectionIsUp);
 	conn.on('data', receiveMessages);
-	//conn.on('close', connectionClosed);
+	conn.on('close', connectionClosed);
 
 	console.log('peer connect DONE',conn, peer, another_id);
 }
- const closeChat = () => {
+ const closeChat = (setChatSet) => {
 	 console.log('close connection',conn,peer);
 	 if(conn)
      conn.close();
+   setChatSet(false);
  }
 
 const sendMessage = (msg_) => {
@@ -83,25 +89,37 @@ const sendMessage = (msg_) => {
   }
 }
 
-const callToID = (another_id, setRemoteStream, localStream, setCallSet) => {
+const callToID = (another_id, setRemoteStream, localStream, callIsUp ) => {
 	//Call
 
 	console.log("callToID", another_id);
 	call = peer.call(another_id, localStream);
-	/*
+		callIsUp();
+	//*
 	setTimeout(()=>{
-	
-	},500);
-  */
+		
+		if(!call) return;
+
 		console.log('donothing');
-	  call.on('stream', (remoteStream) => {
-		// Show stream in some <video> element.
-		console.log('outgoing call incomming stream detected');
-		setRemoteStream(remoteStream);
-		setCallSet(true);
-	});
+		call.on('stream', (remoteStream) => {
+			// Show stream in some <video> element.
+			console.log('outgoing call incomming stream detected');
+			setRemoteStream(remoteStream);
+		});
+		call.on('close', () => {
+			console.log('outgoing call incomming Close of stream detected');
+			setRemoteStream(false);
+			setCallSet(false);
+		});
+	},500);
+  //*/
 
 }
+
+const closeCall = (setCallSet) => {
+  call.close();
+	setCallSet(false);
+};
 
 const disconnect = () => {
   peer.disconnect();
@@ -116,5 +134,6 @@ export default {
 	sendMessage: sendMessage,
 	callToID: callToID,
 	disconnect: disconnect,
-  closeChat: closeChat
+  closeChat: closeChat,
+  closeCall: closeCall
 }

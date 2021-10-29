@@ -98,7 +98,7 @@ const  App = () => {
 		  if(id && id != "")
 		    sendMessages('open call '+id);
 		}
-	}, [  callSet, remoteStream]); // this will be triggered only when state value is different
+	}, [  callSet ]); // this will be triggered only when state value is different
 
 	const updateQS = (val) => {
 	  var url = window.location.href;       
@@ -133,6 +133,11 @@ const  App = () => {
     setChatSet(true);
 	}
 
+	const callIsUp = () => {
+    receiveMessages("call is up");
+    setCallSet(true);
+	}
+
 	const playRemoteStream = (stream) => {
     setRemoteStream(stream); 
 	}
@@ -142,21 +147,26 @@ const  App = () => {
 	}
 
 	const connectChat = (another) => {
-	  Peer.connectToID(another,receiveMessages, connectionIsUp);
+	  Peer.connectToID(another,receiveMessages, connectionIsUp, connectionClosed);
 	};
 
 	const closeChat = () => {
-	  Peer.closeChat();
+	  Peer.closeChat(setChatSet);
 	}
 
 	const connectCall = (another) => {
-	  Peer.callToID(another,setRemoteStream, localStream, setCallSet, connectionClosed);
+	  Peer.callToID(another,setRemoteStream, localStream, callIsUp );
 	};
 
 	const connectionClosed = () => {
     setChatSet(false);
 
-	}
+	};
+
+	const closeCall = () => {
+	  Peer.closeCall(setCallSet);
+	};
+
 
 	const disconnectPeer = () => {
     Peer.disconnect();
@@ -217,6 +227,8 @@ const  App = () => {
         connectChat={connectChat}
 			  connectCall={connectCall}
         closeChat={closeChat}
+			  callSet={callSet}
+			  closeCall={closeCall}
 			/>
       <MsgList
         msg={msg}
