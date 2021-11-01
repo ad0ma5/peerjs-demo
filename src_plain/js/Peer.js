@@ -3,9 +3,9 @@ import Peer from 'peerjs';
 //Create a Peer
 
 
-var peer = null;
-var conn = null;
-var call = null;
+window.peer = null;
+window.conn = null;
+window.call = null;
 /*
 */
 const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet, connectionClosed) => { 
@@ -17,10 +17,9 @@ const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteSt
 	      path: '/peerjs',
         debug: 2
                     });
-	setTimeout(()=>{
-		console.log('donothing');
-	
-		console.log("getId",peer);
+	peer.on("open", function(id) {
+		    console.log("peer.on(\"open\")My peer ID is: " + id);
+		//Answer data connection
 		peer.on('connection', (conn_in) => {
 			conn = conn_in;
 			console.log('incomming connection detected',conn);
@@ -40,27 +39,35 @@ const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteSt
 		
 		//Answer call
 		peer.on('call', (call_in) => {
-			console.log('incomming call detected',call_in);
+			console.log('incomming call detected and passing local stream (Answer)',call_in);
 			call = call_in;
 			call.answer(localStream); // Answer the call with an A/V stream.
 			call.on('stream', (remoteStream) => {
 				// Show stream in some <video> element.
-				console.log('incomming call stream detected');
+				console.log('incomming call stream detected remote stream being set');
 				setRemoteStream(remoteStream);
 				setCallSet(true);
 			});
+			//BUG IN PEERJS close on call never fire
 			call.on('close', () => {
 				console.log('incomming call stream CLOSE detected');
 				setRemoteStream(false);
 				setCallSet(false);
 			});
 		});
-		console.log("gotId", peer.id);
+
 		set_id(peer.id);
+	});//end peer.on("open")
+/*
+	setTimeout(()=>{
+		console.log('donothing inside timeout after connecting');
+	
+		console.log("getId",peer);
+		console.log("gotId", peer.id);
 
 	},500);//end timeout
 	//return peer.id 
-
+*/
 };
 
 	  //Peer.connectToID(another, receiveMessages, connectionIsUp);
@@ -89,21 +96,24 @@ const sendMessage = (msg_) => {
   }
 }
 
-const callToID = (another_id, setRemoteStream, localStream, callIsUp ) => {
+const callToID = (another_id, setRemoteStream, localStream, callIsUp, setCallSet ) => {
 	//Call
 
 	console.log("callToID", another_id);
+	if(localStream === null){
+		console.log("NO LOCAL STREAM, ENABLE VIDEO?");
+		return;
+	}
 	call = peer.call(another_id, localStream);
 		callIsUp();
+		if(!call){
+			console.log("NO call OBJECT! refresh?");
+			return;
+		}
 	//*
-	setTimeout(()=>{
-		
-		if(!call) return;
-
-		console.log('donothing');
 		call.on('stream', (remoteStream) => {
 			// Show stream in some <video> element.
-			console.log('outgoing call incomming stream detected');
+			console.log('outgoing call incomming stream detectedi setting Remote stream');
 			setRemoteStream(remoteStream);
 		});
 		call.on('close', () => {
@@ -111,7 +121,10 @@ const callToID = (another_id, setRemoteStream, localStream, callIsUp ) => {
 			setRemoteStream(false);
 			setCallSet(false);
 		});
-	},500);
+	setTimeout(()=>{
+		
+		console.log('call action donothing inside timeout');
+	},0);
   //*/
 
 }

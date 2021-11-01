@@ -28,7 +28,7 @@ const Channel = ({selectPeer, id, idSet}) => {
 	
 	const getChannel = () => {
     const query = "get";
-	  httpGet(setResponse, query, "sessions");
+	  httpGet(setResponse, query, "peerjs/sessions");
 	}
 
 	if(id !== "")

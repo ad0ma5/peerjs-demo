@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start_p": "parcel src_plain/index.html  --cert cert.pem --key key.pem",
+    "start_p": "parcel serve src_plain/index.html  --cert cert.pem --key key.pem --no-cache",
     "start_r": "parcel src_plain/receive.html",
     "start_a": "parcel src_plain/test.html  --https" ,
     "build": "parcel build src_plain/index.html",

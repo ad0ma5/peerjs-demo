@@ -34,8 +34,8 @@ peerServer.on('connection', (client) => {
 app.use('/peerjs', peerServer);
 app.get('/', (req, res, next) => res.send('Hello world!'));
 app.use(express.static('./dist'))
-app.use('/accounts', accounts);
-app.use('/sessions', sessions);
+app.use('/peerjs/accounts', accounts);
+app.use('/peerjs/sessions', sessions);
 const port = 9000;
 server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)

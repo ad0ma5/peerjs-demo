@@ -20,7 +20,7 @@ const Register = ({setUser, user, userSet, setUserSet, setReg}) => {
 	
 	const register = () => {
     const query = "add&username="+username+"&email="+email+"&pass="+pass;
-	  httpGet(setResponse, query, "accounts");
+	  httpGet(setResponse, query, "peerjs/accounts");
 	};
 
 	return (

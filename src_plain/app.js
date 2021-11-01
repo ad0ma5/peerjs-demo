@@ -13,3 +13,4 @@ if(seen === 1){
 //window.addEventListener("focusin", console.log);
 //window.addEventListener("focusout", console.log);
 }
+console.log('app.js');

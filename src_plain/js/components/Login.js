@@ -18,7 +18,7 @@ const Login = ({setUser, user, userSet, setUserSet }) => {
 	}
 	const login = () => {
     const query = "login&&email="+email+"&pass="+pass;
-	  httpGet(setResponse, query, "accounts");
+	  httpGet(setResponse, query, "peerjs/accounts");
 	};
 
 	if(reg){

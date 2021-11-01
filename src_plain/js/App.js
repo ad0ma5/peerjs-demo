@@ -13,6 +13,7 @@ import Channel from './components/Channel.js';
 import httpGet from "./httpGet.js";
 
 const  App = () => {
+	console.log("App.js");
 
   // Declare a new state variable, which we'll call "count"
   const [user, setUser] = useState({});
@@ -41,18 +42,19 @@ const  App = () => {
 
 	const startSession = () => {
 		const query = "add&&email="+user.email+"&peer_id="+id+"&online=true";
-	  httpGet(setResponse, query, "sessions");
+	  httpGet(setResponse, query, "peerjs/sessions");
 	};
 
 	const endSession = () => {
 		const query = "remove&&email="+user.email+"&peer_id="+id+"&online=true";
-	  httpGet(setResponse, query, "sessions");
+	  httpGet(setResponse, query, "peerjs/sessions");
 	};
-
+/*
+ * AAAA
 	useEffect(() => {
-		console.log('session changed');
+		//console.log('session changed');
 	}, [session] );
-
+*/
 	useEffect(() => {
 		if(id){
 			set_idSet(true);
@@ -77,7 +79,7 @@ const  App = () => {
 			//console.log("use effect msg" , msg, inNewMsg); // this prints the updated value
 			const m = msg.slice(); //[...msg];
 			m.push("\n< "+inNewMsg);
-			console.log("RECEIVE effect",m,  msg );
+			console.log("RECEIVE msg effect",m,  msg );
 			setMsg(m);	
 			const nm = newMsg+1;
 			setNewMsg(nm);
@@ -98,7 +100,7 @@ const  App = () => {
 		  if(id && id != "")
 		    sendMessages('open call '+id);
 		}
-	}, [  callSet ]); // this will be triggered only when state value is different
+	}, [  callSet , remoteStream/*, localStream*/ ]); // this will be triggered only when state value is different
 
 	const updateQS = (val) => {
 	  var url = window.location.href;       
@@ -155,7 +157,8 @@ const  App = () => {
 	}
 
 	const connectCall = (another) => {
-	  Peer.callToID(another,setRemoteStream, localStream, callIsUp );
+
+	  Peer.callToID(another,setRemoteStream, localStream, callIsUp, setCallSet );
 	};
 
 	const connectionClosed = () => {
@@ -236,6 +239,7 @@ const  App = () => {
 			{newMsg} <input type="text" value={tmpMsg} onChange={ (e) => setTmpMsg(e.target.value) } />  = {tmpMsg} <button onClick={() => sendMessages(tmpMsg)}> send </button> 
 			<br />
       <VideoCall
+			  id="Remote_video"
 			  stream={remoteStream}
 			  isRemote={true}
 			  callSet={callSet}
@@ -243,6 +247,7 @@ const  App = () => {
 			  setStart={setStart}
 			/>
       <VideoCall
+			  id="Local_video"
 			  returnStream={returnStream}
 			  isRemote={false}
 			  start={start}

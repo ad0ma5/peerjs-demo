@@ -19,25 +19,25 @@ const httpGet = ( setResponse, query, path) => {
 			   rawData.push( chunk );
 	    });
 
-				//process.stdout.write(d)
 		  res.on('end', () => {
 				try {
+					console.log('trying to end data transfer');
 					const data = Buffer.concat(rawData).toString();
 
 					const parsedData = JSON.parse(data);
 					setResponse(parsedData);
 				} catch (e) {
-					console.error(e);
+					console.error("error in httpGet ", e);
 				}
 			});
 	})
 
 	req.on('error', error => {
 			console.error(error)
-	})
+	});
 
-	req.end()
+	req.end();
 
-}
+};
 
 export default httpGet;
