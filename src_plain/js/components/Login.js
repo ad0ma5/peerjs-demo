@@ -8,12 +8,15 @@ const Login = ({setUser, user, userSet, setUserSet }) => {
   const [pass, setPass] = useState("");
   const [email, setEmail] = useState("");
   const [reg, setReg] = useState(false);
+  const [loginError, setLoginError] = useState("");
   
 	const setResponse = ( response ) => {
     console.log("response from httpGet", response);
 		if(response.status === "ok"){
       setUser(response.data);
 			setUserSet(true);
+		}else{
+      setLoginError("Login failed, please try again or register if dont have valid account.");
 		}
 	}
 	const login = () => {
@@ -56,7 +59,7 @@ const Login = ({setUser, user, userSet, setUserSet }) => {
 		  <button 
 		    onClick={ () => setReg(true)} 
 		  > Register </button> 
-			
+		  { loginError }	
 		</div>
 	);
 }

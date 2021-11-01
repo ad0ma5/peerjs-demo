@@ -27,7 +27,7 @@ const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteSt
 				setExternal(conn.peer); 
 				connectionIsUp(); 
 
-				receiveMessages("connection open to "+conn.peer);
+				receiveMessages(JSON.stringify({type: "message", content: "connection open to "+conn.peer}));
 			  console.log('incomming connectionaopen  detected',conn);
 			});
 			conn.on('data', (data) => {

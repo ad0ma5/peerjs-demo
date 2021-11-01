@@ -13,7 +13,7 @@ import Channel from './components/Channel.js';
 import httpGet from "./httpGet.js";
 
 const  App = () => {
-	console.log("App.js");
+	//console.log("App.js");
 
   // Declare a new state variable, which we'll call "count"
   const [user, setUser] = useState({});
@@ -36,7 +36,9 @@ const  App = () => {
 	const setResponse = ( response ) => {
     console.log("response from httpGet", response);
 		if(response.status === "ok"){
-      setSession({});
+      setSession(response.data);
+		}else{
+			setSession({});
 		}
 	}
 
@@ -55,6 +57,22 @@ const  App = () => {
 		//console.log('session changed');
 	}, [session] );
 */
+
+	useEffect(() => {
+		console.log("APP LOADED");
+		return () => {
+		  console.log("APP UNLOADED");
+		}
+	}, [] );
+	useEffect(() => {
+		if(session !== {}){
+		  window.addEventListener("beforeunload", logout);
+	  }else{
+	    window.removeEventListener("beforeunload", logout);
+		}
+
+	}, [session] );
+
 	useEffect(() => {
 		if(id){
 			set_idSet(true);
@@ -75,7 +93,7 @@ const  App = () => {
 	
 
 	useEffect(() => {
-		if(true || newMsg > 0){
+		if( inNewMsg ){
 			//console.log("use effect msg" , msg, inNewMsg); // this prints the updated value
 			const m = msg.slice(); //[...msg];
 			m.push("\n< "+inNewMsg);
@@ -90,7 +108,7 @@ const  App = () => {
     if(callSet){
 		  console.log('effect incomming open detected ',id);
 		  if(id && id != "")
-		    sendMessages('open '+id);
+		    sendMessages({type:"message", content: 'open '+id });
 		}
 	}, [ chatSet ]); // this will be triggered only when state value is different
 
@@ -98,7 +116,7 @@ const  App = () => {
     if(callSet){
 		  console.log('effect incomming call  detected ',id);
 		  if(id && id != "")
-		    sendMessages('open call '+id);
+		    sendMessages({type:"message", content: 'open call '+id});
 		}
 	}, [  callSet , remoteStream/*, localStream*/ ]); // this will be triggered only when state value is different
 
@@ -116,12 +134,14 @@ const  App = () => {
 
 	const receiveMessages = (msg_in) => {
 		console.log("RECEIVE",msg_in, msg);
-    setInNewMsg(msg_in);
+		try{ msg_in = JSON.parse(msg_in); }catch(err){console.log(err);}
+		if(msg_in.type === "message")
+      setInNewMsg(msg_in.content);
 	};
 
 	const sendMessages = (msg_in) => {
 		console.log("SEND",msg_in, msg);
-	  Peer.sendMessage(msg_in);
+	  Peer.sendMessage(JSON.stringify({type:"message",content: msg_in}));
 	  const m = msg.slice(); // [...msg];
 		m.push("\n> "+msg_in);
 		setMsg(m);
@@ -131,12 +151,12 @@ const  App = () => {
 	};
 
   const connectionIsUp = () => {
-    receiveMessages("connection is open");
+    receiveMessages({type:"message", content: "connection is open"});
     setChatSet(true);
 	}
 
 	const callIsUp = () => {
-    receiveMessages("call is up");
+    receiveMessages({type:"message", content: "call is up"});
     setCallSet(true);
 	}
 
@@ -183,6 +203,11 @@ const  App = () => {
 		setLocalStream(stream);
 	};
 
+	const logout = () => {
+		console.log("logout", session, user)
+		if (session !== {} && id !== "") disconnectPeer();
+	  if (user.id) setUser({});
+	};
 
 	//render
   if(!user.id){
@@ -204,6 +229,11 @@ const  App = () => {
 				onClick={ () => setHide(true) }
 			>
 			  Hide 
+			</button>
+			<button 
+				onClick={ () => logout() }
+			>
+			  Logout 
 			</button>
 			<User
 			  user={user}
@@ -264,6 +294,11 @@ const  App = () => {
 			   >
          Show
 			   </button>
+			<button 
+				onClick={ () => logout() }
+			>
+			  Logout 
+			</button>
 
 			<br />
       <VideoCall

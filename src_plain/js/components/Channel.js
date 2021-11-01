@@ -36,17 +36,18 @@ const Channel = ({selectPeer, id, idSet}) => {
 		interval = setInterval(function(){ 
 			//console.log("Hello"); 
 			getChannel();
-    }, 30000);
+    }, 300 *1000);
 	  //console.log("started interval", interval);
 	}
 
 	useEffect(() => {
+		if(id !== "")
 		return () => {
 			//console.log('unmount channel clear interval=',interval);
 			clearInterval(interval);
 			interval = null;
 		};
-	}, []);
+	}, [], id);
 
 	useEffect(() => {
     if(Object.keys(channel).length < 1 && id !== ""){
