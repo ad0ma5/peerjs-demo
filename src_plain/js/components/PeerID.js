@@ -12,7 +12,10 @@ const PeerID = ({ id, idSet, getPeerID, online, disconnect }) => {
 	}else{
     return (
 			<div  className="padding border" >
-			local_id = <a className="peer_id" href={"?id="+id}>{id}</a> <button onClick={()=> disconnect() } >disconnect</button>
+			local_id = <a className="peer_id" href={"?id="+id}>{id}</a>
+			{
+				//<button onClick={()=> disconnect() } >disconnect</button>
+			}
 			</div>
 		);
 	}

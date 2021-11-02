@@ -27,7 +27,7 @@ export default function VideoCall({stream, returnStream, isRemote, callSet, star
 			}
 			if(!isRemote){
 			  if(!start && refVideo.current){
-					console.log([refVideo, sObject]);
+					//console.log([refVideo, sObject]);
    
 					if(sObject && sObject[0])
 					sObject[0].current.close();

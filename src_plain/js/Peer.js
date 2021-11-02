@@ -10,7 +10,7 @@ window.call = null;
 */
 const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet, connectionClosed) => { 
   //receive
-
+console.log("Peer.getID");
   peer = new Peer(null, {
       	host: 'b5277.k.dedikuoti.lt',
 	      port: 9000,

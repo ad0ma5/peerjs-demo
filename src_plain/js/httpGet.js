@@ -11,7 +11,7 @@ const httpGet = ( setResponse, query, path) => {
 	}
 
 	const req = https.request(options, res => {
-			console.log(`statusCode: ${res.statusCode}`)
+			console.log(`statusCode: ${res.statusCode} ${options.path}`)
 
 		  let rawData = [];
 
@@ -21,7 +21,7 @@ const httpGet = ( setResponse, query, path) => {
 
 		  res.on('end', () => {
 				try {
-					console.log('trying to end data transfer');
+					//console.log('trying to end data transfer');
 					const data = Buffer.concat(rawData).toString();
 
 					const parsedData = JSON.parse(data);

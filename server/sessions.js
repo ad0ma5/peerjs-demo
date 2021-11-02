@@ -34,7 +34,7 @@ function sessions(req, res, next)  {
 		return
 	}
 
-  if( action === "add" ){
+  if( action === "add" && req.query.email ){
 		var newSession = req.query;
 		newSession.id = Date.now();
     delete newSession.action;
@@ -54,7 +54,7 @@ function sessions(req, res, next)  {
     res.send(JSON.stringify({status: "ok"}));
 		return
 	}
-	res.send(JSON.stringify(req.query))
+	res.send(JSON.stringify({status:"nok", data: req.query))
 }
 
 module.exports = sessions;

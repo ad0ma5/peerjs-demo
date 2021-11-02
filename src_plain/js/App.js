@@ -34,8 +34,9 @@ const  App = () => {
   const [session, setSession] = useState({});
 
 	const setResponse = ( response ) => {
-    console.log("response from httpGet", response);
+    console.log("session response from httpGet", response);
 		if(response.status === "ok"){
+			console.log("session response ok");
       setSession(response.data);
 		}else{
 			setSession({});
@@ -44,6 +45,7 @@ const  App = () => {
 
 	const startSession = () => {
 		const query = "add&&email="+user.email+"&peer_id="+id+"&online=true";
+		if(user.email)
 	  httpGet(setResponse, query, "peerjs/sessions");
 	};
 
@@ -51,12 +53,15 @@ const  App = () => {
 		const query = "remove&&email="+user.email+"&peer_id="+id+"&online=true";
 	  httpGet(setResponse, query, "peerjs/sessions");
 	};
-/*
- * AAAA
+
 	useEffect(() => {
-		//console.log('session changed');
-	}, [session] );
-*/
+		console.log('user changed', user);
+		if(id === "" && user.email !== undefined){
+			
+		  console.log('user email', user.email);
+			getPeerID();
+		}
+	}, [ user ] );
 
 	useEffect(() => {
 		console.log("APP LOADED");
@@ -64,6 +69,7 @@ const  App = () => {
 		  console.log("APP UNLOADED");
 		}
 	}, [] );
+
 	useEffect(() => {
 		if(session !== {}){
 		  window.addEventListener("beforeunload", logout);
@@ -74,10 +80,14 @@ const  App = () => {
 	}, [session] );
 
 	useEffect(() => {
-		if(id){
+		console.log("id changed", id);
+		if(id !== ""){
+
 			set_idSet(true);
 		  //start session
       startSession();
+		}else{
+      set_idSet(false);
 		}
 	}, [id] );
 
@@ -134,6 +144,7 @@ const  App = () => {
 
 	const receiveMessages = (msg_in) => {
 		console.log("RECEIVE",msg_in, msg);
+		if(typeof msg_in === "string")
 		try{ msg_in = JSON.parse(msg_in); }catch(err){console.log(err);}
 		if(msg_in.type === "message")
       setInNewMsg(msg_in.content);
@@ -252,6 +263,7 @@ const  App = () => {
 			  id={id}
         selectPeer={updateE_id}
         idSet={idSet}
+			  session={session}
 			/>
 			<ExternalID
 			  updateE_id={updateE_id}
