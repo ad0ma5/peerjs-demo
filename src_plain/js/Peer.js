@@ -121,10 +121,6 @@ const callToID = (another_id, setRemoteStream, localStream, callIsUp, setCallSet
 			setRemoteStream(false);
 			setCallSet(false);
 		});
-	setTimeout(()=>{
-		
-		console.log('call action donothing inside timeout');
-	},0);
   //*/
 
 }

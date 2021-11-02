@@ -101,6 +101,11 @@ const  App = () => {
 		}
 	}, [external_id] );
 	
+	useEffect(() => {
+			console.log("use effect START CALL" , start, external_id); // this prints the updated value
+		if(start && external_id !== "")
+	       Peer.callToID(external_id,setRemoteStream, localStream, callIsUp, setCallSet );
+	}, [ start ]); // this will be triggered only when state value is different
 
 	useEffect(() => {
 		if( inNewMsg ){
@@ -148,6 +153,17 @@ const  App = () => {
 		try{ msg_in = JSON.parse(msg_in); }catch(err){console.log(err);}
 		if(msg_in.type === "message")
       setInNewMsg(msg_in.content);
+		if(msg_in.type === "controll"){
+      if(msg_in.content === "accept_call"){
+
+				 setStart(true);
+			}
+      if(msg_in.content === "call"){
+				setStart(true);
+        sendControllMsg("accept_call");
+
+			}
+		}
 	};
 
 	const sendMessages = (msg_in) => {
@@ -159,6 +175,11 @@ const  App = () => {
     setTmpMsg("");
 		const nm = newMsg+1;
     setNewMsg(nm);
+	};
+
+	const sendControllMsg = (msg_in) => {
+		console.log("SEND CONTROLL",msg_in);
+	  Peer.sendMessage(JSON.stringify({type:"controll",content: msg_in}));
 	};
 
   const connectionIsUp = () => {
@@ -186,10 +207,14 @@ const  App = () => {
 	const closeChat = () => {
 	  Peer.closeChat(setChatSet);
 	}
+  const requestRemoteCall = () => {
+    sendControllMsg("call");
+	};
 
 	const connectCall = (another) => {
-
-	  Peer.callToID(another,setRemoteStream, localStream, callIsUp, setCallSet );
+			console.log("REQUESTIN A CALL");
+    requestRemoteCall();
+	    //Peer.callToID(another,setRemoteStream, localStream, callIsUp, setCallSet );
 	};
 
 	const connectionClosed = () => {

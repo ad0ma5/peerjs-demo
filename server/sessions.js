@@ -54,7 +54,7 @@ function sessions(req, res, next)  {
     res.send(JSON.stringify({status: "ok"}));
 		return
 	}
-	res.send(JSON.stringify({status:"nok", data: req.query))
+	res.send(JSON.stringify({status:"nok", data: req.query}))
 }
 
 module.exports = sessions;

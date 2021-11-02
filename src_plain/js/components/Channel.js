@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import httpGet from "../httpGet.js";
 var interval = null;
 
-const Channel = ({selectPeer, id, idSeti, session}) => {
+const Channel = ({selectPeer, id, idSet, session}) => {
 	
   const [channel, setChannel] = useState({});
 
