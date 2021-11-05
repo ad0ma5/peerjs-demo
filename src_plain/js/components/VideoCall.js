@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 
 
-export default function VideoCall({stream, returnStream, isRemote, callSet, start, setStart, ...props }) {
+export default function VideoCall({stream, returnStream, isRemote, setLocalStreamSet, start, setStart, ...props }) {
   const [sObject, setSObject] = useState(false);
   const [sObjectA, setSObjectA] = useState(false);
 	  const refVideo = useRef(null)
@@ -48,17 +48,26 @@ export default function VideoCall({stream, returnStream, isRemote, callSet, star
 					}//end navigator
 				}// end if !start
 			}//end if remote
-		}, [start])
+		}, [start]);
+
   	const handleVideo = (stream)=>{
 			//if(!start) return
       console.log('handleVideo isRemote', isRemote);
 			    // Update the state, triggering the component to re-render with the correct stream
       setSObject(stream);
       setSObjectA(true);
-			if(!isRemote) returnStream(stream);
-		}
+			if(!isRemote){
+				returnStream(stream);
+				setLocalStreamSet(true);
+
+			}
+		};
 	  const videoError = (err)=>{
       console.log('error',err);
+
+			if(!isRemote){
+				//setLocalStreamSet(true);
+			}
 		}
 
 	  return <video ref={refVideo} {...props} onClick={()=>setStart(!start)} autoPlay controls={false} />

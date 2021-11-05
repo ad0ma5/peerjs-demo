@@ -102,25 +102,26 @@ const callToID = (another_id, setRemoteStream, localStream, callIsUp, setCallSet
 	console.log("callToID", another_id);
 	if(localStream === null){
 		console.log("NO LOCAL STREAM, ENABLE VIDEO?");
+		alert("no local");
 		return;
 	}
 	call = peer.call(another_id, localStream);
-		callIsUp();
-		if(!call){
-			console.log("NO call OBJECT! refresh?");
-			return;
-		}
-	//*
-		call.on('stream', (remoteStream) => {
-			// Show stream in some <video> element.
-			console.log('outgoing call incomming stream detectedi setting Remote stream');
-			setRemoteStream(remoteStream);
-		});
-		call.on('close', () => {
-			console.log('outgoing call incomming Close of stream detected');
-			setRemoteStream(false);
-			setCallSet(false);
-		});
+	callIsUp();
+	if(!call){
+		console.log("NO call OBJECT! refresh?");
+		return;
+	}
+//*
+	call.on('stream', (remoteStream) => {
+		// Show stream in some <video> element.
+		console.log('outgoing call incomming stream detectedi setting Remote stream');
+		setRemoteStream(remoteStream);
+	});
+	call.on('close', () => {
+		console.log('outgoing call incomming Close of stream detected');
+		setRemoteStream(false);
+		setCallSet(false);
+	});
   //*/
 
 }

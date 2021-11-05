@@ -18,9 +18,11 @@ const  App = () => {
   // Declare a new state variable, which we'll call "count"
   const [user, setUser] = useState({});
   const [userSet, setUserSet] = useState(false);
+
   const [external_id, setExternal_id] = useState("");
   const [id, set_id] = useState("");
   const [idSet, set_idSet] = useState(false);
+
   const [hide, setHide] = useState(false);
   const [msg, setMsg] = useState([]);
   const [start, setStart] = useState(false);
@@ -30,6 +32,7 @@ const  App = () => {
 	const [inNewMsg, setInNewMsg] = useState("");
   const [remoteStream, setRemoteStream] = useState(false);
   const [localStream, setLocalStream] = useState(null);
+  const [localStreamSet, setLocalStreamSet] = useState(false);
   const [callSet, setCallSet] = useState(false);
   const [session, setSession] = useState({});
 
@@ -103,9 +106,13 @@ const  App = () => {
 	
 	useEffect(() => {
 			console.log("use effect START CALL" , start, external_id); // this prints the updated value
-		if(start && external_id !== "")
-	       Peer.callToID(external_id,setRemoteStream, localStream, callIsUp, setCallSet );
 	}, [ start ]); // this will be triggered only when state value is different
+	
+	useEffect(() => {
+		console.log("use effect START localStreamSet" , localStreamSet ); // this prints the updated value
+		if(start && external_id !== "")
+	    Peer.callToID(external_id,setRemoteStream, localStream, callIsUp, setCallSet );
+	}, [ localStreamSet ]); // this will be triggered only when state value is different
 
 	useEffect(() => {
 		if( inNewMsg ){
@@ -156,13 +163,19 @@ const  App = () => {
 		if(msg_in.type === "controll"){
       if(msg_in.content === "accept_call"){
 
-				 setStart(true);
+				setStart(true);
+				setCallSet(true); 
 			}
       if(msg_in.content === "call"){
 				setStart(true);
         sendControllMsg("accept_call");
 
 			}
+      if(msg_in.content === "end_call"){
+
+	      Peer.closeCall(setCallSet);
+			}
+
 		}
 	};
 
@@ -224,6 +237,8 @@ const  App = () => {
 
 	const closeCall = () => {
 	  Peer.closeCall(setCallSet);
+
+    sendControllMsg("end_call");
 	};
 
 
@@ -309,7 +324,7 @@ const  App = () => {
 			  id="Remote_video"
 			  stream={remoteStream}
 			  isRemote={true}
-			  callSet={callSet}
+			  setLocalStreamSet={setLocalStreamSet}
 			  start={start}
 			  setStart={setStart}
 			/>
