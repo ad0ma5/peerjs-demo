@@ -110,8 +110,8 @@ const  App = () => {
 	
 	useEffect(() => {
 		console.log("use effect START localStreamSet" , localStreamSet ); // this prints the updated value
-		if(start && external_id !== "")
-	    Peer.callToID(external_id,setRemoteStream, localStream, callIsUp, setCallSet );
+		//if(start && external_id !== "")
+	  //  Peer.callToID(external_id,setRemoteStream, localStream, callIsUp, setCallSet );
 	}, [ localStreamSet ]); // this will be triggered only when state value is different
 
 	useEffect(() => {
@@ -130,7 +130,7 @@ const  App = () => {
     if(callSet){
 		  console.log('effect incomming open detected ',id);
 		  if(id && id != "")
-		    sendMessages({type:"message", content: 'open '+id });
+		    sendMessages('open chat'+id );
 		}
 	}, [ chatSet ]); // this will be triggered only when state value is different
 
@@ -138,9 +138,15 @@ const  App = () => {
     if(callSet){
 		  console.log('effect incomming call  detected ',id);
 		  if(id && id != "")
-		    sendMessages({type:"message", content: 'open call '+id});
+		    sendMessages('open call '+id);
 		}
-	}, [  callSet , remoteStream/*, localStream*/ ]); // this will be triggered only when state value is different
+	}, [  callSet /*, localStream*/ ]); // this will be triggered only when state value is different
+
+	useEffect(() => {
+
+		  console.log('effect incomming call  remoteStream changed ');
+		if(remoteStream) setCallSet(true);
+	}, [  remoteStream/*, localStream*/ ]); // this will be triggered only when state value is different
 
 	const updateQS = (val) => {
 	  var url = window.location.href;       
@@ -155,10 +161,11 @@ const  App = () => {
 	};
 
 	const receiveMessages = (msg_in) => {
-		console.log("RECEIVE",msg_in, msg);
+		console.log("RECEIVE",msg_in, msg, typeof msg_in);
 		if(typeof msg_in === "string")
 		try{ msg_in = JSON.parse(msg_in); }catch(err){console.log(err);}
 		if(msg_in.type === "message")
+			console.log("message add to list", msg_in);
       setInNewMsg(msg_in.content);
 		if(msg_in.type === "controll"){
       if(msg_in.content === "accept_call"){
@@ -226,8 +233,8 @@ const  App = () => {
 
 	const connectCall = (another) => {
 			console.log("REQUESTIN A CALL");
-    requestRemoteCall();
-	    //Peer.callToID(another,setRemoteStream, localStream, callIsUp, setCallSet );
+    //requestRemoteCall();
+	    Peer.callToID(another,setRemoteStream, localStream, callIsUp, setCallSet );
 	};
 
 	const connectionClosed = () => {
@@ -334,6 +341,7 @@ const  App = () => {
 			  isRemote={false}
 			  start={start}
 			  setStart={setStart}
+			  setLocalStreamSet={setLocalStreamSet}
 			/>
 
 		</div>
@@ -356,7 +364,6 @@ const  App = () => {
       <VideoCall
 			  stream={remoteStream}
 			  isRemote={true}
-			  callSet={callSet}
 			  start={start}
 			  setStart={setStart}
 			/>

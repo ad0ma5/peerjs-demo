@@ -58,7 +58,7 @@ export default function VideoCall({stream, returnStream, isRemote, setLocalStrea
       setSObjectA(true);
 			if(!isRemote){
 				returnStream(stream);
-				setLocalStreamSet(true);
+				//setLocalStreamSet(true);
 
 			}
 		};

@@ -39,21 +39,18 @@ console.log("Peer.getID");
 		
 		//Answer call
 		peer.on('call', (call_in) => {
-			console.log('incomming call detected and passing local stream (Answer)',call_in);
+			console.log('AAAAAA incomming call detected and passing local stream (Answer)',call_in);
 			call = call_in;
 			call.answer(localStream); // Answer the call with an A/V stream.
-			call.on('stream', (remoteStream) => {
-				// Show stream in some <video> element.
-				console.log('incomming call stream detected remote stream being set');
-				setRemoteStream(remoteStream);
-				setCallSet(true);
-			});
+			call.on('stream', setRemoteStream);
 			//BUG IN PEERJS close on call never fire
+			/*
 			call.on('close', () => {
 				console.log('incomming call stream CLOSE detected');
 				setRemoteStream(false);
 				setCallSet(false);
 			});
+			*/
 		});
 
 		set_id(peer.id);
@@ -99,24 +96,17 @@ const sendMessage = (msg_) => {
 const callToID = (another_id, setRemoteStream, localStream, callIsUp, setCallSet ) => {
 	//Call
 
-	console.log("callToID", another_id);
+	console.log("callToID", another_id, peer);
 	if(localStream === null){
 		console.log("NO LOCAL STREAM, ENABLE VIDEO?");
 		alert("no local");
 		return;
 	}
-	call = peer.call(another_id, localStream);
-	callIsUp();
-	if(!call){
-		console.log("NO call OBJECT! refresh?");
-		return;
-	}
-//*
-	call.on('stream', (remoteStream) => {
-		// Show stream in some <video> element.
-		console.log('outgoing call incomming stream detectedi setting Remote stream');
-		setRemoteStream(remoteStream);
-	});
+	const c = peer.call(another_id, localStream);
+	c.on('stream', setRemoteStream);
+	console.log("callToID adding stream and close hooks", another_id);
+	
+	/*
 	call.on('close', () => {
 		console.log('outgoing call incomming Close of stream detected');
 		setRemoteStream(false);
@@ -124,11 +114,26 @@ const callToID = (another_id, setRemoteStream, localStream, callIsUp, setCallSet
 	});
   //*/
 
+	if(!call){
+		console.log("NO call OBJECT! refresh?", c);
+	//	call = c;
+//		setRemoteStream(call.remoteStream);
+
+		//return;
+	}
+//*
+	
 }
 
 const closeCall = (setCallSet) => {
-  call.close();
-	setCallSet(false);
+	console.log("close local call",call);
+  if(call){
+		call.close();
+	}else{
+		console.log("no call to close found? ");
+	}
+	  setCallSet(false);
+
 };
 
 const disconnect = () => {
