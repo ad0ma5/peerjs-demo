@@ -6,9 +6,13 @@ import Peer from 'peerjs';
 window.peer = null;
 window.conn = null;
 window.call = null;
+window.functionsP = {};
 /*
 */
-const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet, connectionClosed) => { 
+
+const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteStream, getLocalStream, setCallSet, connectionClosed, onCall) => { 
+  functionsP.getLocalStream = getLocalStream;
+  functionsP.setRemoteStream = setRemoteStream;
   //receive
 console.log("Peer.getID");
   peer = new Peer(null, {
@@ -38,23 +42,9 @@ console.log("Peer.getID");
 		});
 		
 		//Answer call
-		peer.on('call', (call_in) => {
-			console.log('AAAAAA incomming call detected and passing local stream (Answer)',call_in);
-			call = call_in;
-			call.answer(localStream); // Answer the call with an A/V stream.
-			call.on('stream', setRemoteStream);
-			//BUG IN PEERJS close on call never fire
-			/*
-			call.on('close', () => {
-				console.log('incomming call stream CLOSE detected');
-				setRemoteStream(false);
-				setCallSet(false);
-			});
-			*/
-		});
-
-		set_id(peer.id);
-	});//end peer.on("open")
+		peer.on('call', onCall);//end peer.on("open")
+	  set_id(peer.id);
+	});
 /*
 	setTimeout(()=>{
 		console.log('donothing inside timeout after connecting');
@@ -66,7 +56,6 @@ console.log("Peer.getID");
 	//return peer.id 
 */
 };
-
 	  //Peer.connectToID(another, receiveMessages, connectionIsUp);
 const connectToID = (another_id, receiveMessages, connectionIsUp, connectionClosed) => {
 	const options = { label: "Private chat" };
@@ -102,8 +91,9 @@ const callToID = (another_id, setRemoteStream, localStream, callIsUp, setCallSet
 		alert("no local");
 		return;
 	}
-	const c = peer.call(another_id, localStream);
-	c.on('stream', setRemoteStream);
+	var c = peer.call(another_id, localStream);
+	setCallSet(true);
+	c.on('stream', (stream) =>{ setRemoteStream(stream)});
 	console.log("callToID adding stream and close hooks", another_id);
 	
 	/*
@@ -116,7 +106,7 @@ const callToID = (another_id, setRemoteStream, localStream, callIsUp, setCallSet
 
 	if(!call){
 		console.log("NO call OBJECT! refresh?", c);
-	//	call = c;
+		call = c;
 //		setRemoteStream(call.remoteStream);
 
 		//return;

@@ -20,13 +20,13 @@ export default function VideoCall({stream, returnStream, isRemote, setLocalStrea
 		}, [sObjectA])
 
 	  useEffect(() => {
-			if(stream && isRemote) {
+			if(stream ) {
 				setStart(true);
 				handleVideo(stream);
 				return;
 			}
 			if(!isRemote){
-			  if(!start && refVideo.current){
+			  if(!start && refVideo !== null){
 					//console.log([refVideo, sObject]);
    
 					if(sObject && sObject[0])
@@ -38,15 +38,22 @@ export default function VideoCall({stream, returnStream, isRemote, setLocalStrea
 			    });
 			    refVideo.current.srcObject = null;
           setSObjectA(false);
-				  //refVideo.current.stop();	
+					sefVideo = null;
+					returnStream(null);
 					return
-				}else{
-					console.log('mount local video');
+				}else 
+					if(stream === null){
+					console.log('mount local video as it is null');
 					navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
 					if (navigator.getUserMedia) {
 						navigator.getUserMedia({video: true, audio: true}, handleVideo, videoError);
 					}//end navigator
 				}// end if !start
+				else{
+					console.log('no mount local video as it is not null');
+
+
+				}
 			}//end if remote
 		}, [start]);
 
@@ -58,7 +65,7 @@ export default function VideoCall({stream, returnStream, isRemote, setLocalStrea
       setSObjectA(true);
 			if(!isRemote){
 				returnStream(stream);
-				//setLocalStreamSet(true);
+				setLocalStreamSet(true);
 
 			}
 		};
@@ -66,7 +73,7 @@ export default function VideoCall({stream, returnStream, isRemote, setLocalStrea
       console.log('error',err);
 
 			if(!isRemote){
-				//setLocalStreamSet(true);
+				setLocalStreamSet(true);
 			}
 		}
 

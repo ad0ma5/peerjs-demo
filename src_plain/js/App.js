@@ -31,10 +31,11 @@ const  App = () => {
 	const [newMsg, setNewMsg] = useState(0);
 	const [inNewMsg, setInNewMsg] = useState("");
   const [remoteStream, setRemoteStream] = useState(false);
-  const [localStream, setLocalStream] = useState(null);
+  const [localStream, setLocalStream] = useState(false);
   const [localStreamSet, setLocalStreamSet] = useState(false);
   const [callSet, setCallSet] = useState(false);
   const [session, setSession] = useState({});
+  const [callIn, setCallIn] = useState(false);
 
 	const setResponse = ( response ) => {
     console.log("session response from httpGet", response);
@@ -56,6 +57,15 @@ const  App = () => {
 		const query = "remove&&email="+user.email+"&peer_id="+id+"&online=true";
 	  httpGet(setResponse, query, "peerjs/sessions");
 	};
+
+	useEffect(() => {
+		console.log('CALLING', callIn, localStream);
+		const call_in = window.call;	
+		if(call_in && callIn){
+				call_in.answer(localStream); // Answer the call with an A/V stream.
+				call_in.on('stream', setRemoteStream);
+		}
+	}, [ callIn ] );
 
 	useEffect(() => {
 		console.log('user changed', user);
@@ -108,6 +118,11 @@ const  App = () => {
 			console.log("use effect START CALL" , start, external_id); // this prints the updated value
 	}, [ start ]); // this will be triggered only when state value is different
 	
+	useEffect(() => {
+		console.log("use effect START localStream" , localStream ); // this prints the updated value
+		//if(start && external_id !== "")
+	  //  Peer.callToID(external_id,setRemoteStream, localStream, callIsUp, setCallSet );
+	}, [  localStream ]); // this will be triggered only when state value is different
 	useEffect(() => {
 		console.log("use effect START localStreamSet" , localStreamSet ); // this prints the updated value
 		//if(start && external_id !== "")
@@ -216,8 +231,27 @@ const  App = () => {
     setRemoteStream(stream); 
 	}
 
+	const onCall = (call_in) => {
+				//var localStream = functionsP.getLocalStream();
+				if(localStream === null){
+					alert("no local stream");
+				}
+				console.log('AAAAAA incomming call detected and passing local stream (Answer)',call_in,localStream);
+				//call = call_in;
+		setCallIn(true);
+		window.call = call_in;
+				//BUG IN PEERJS close on call never fire
+				/*
+				call.on('close', () => {
+					console.log('incomming call stream CLOSE detected');
+					setRemoteStream(false);
+					setCallSet(false);
+				});
+				*/
+	};
+
 	const getPeerID = () => {
-		Peer.getID(set_id, setExternal_id, receiveMessages, connectionIsUp, setRemoteStream, localStream, setCallSet, connectionClosed);
+		Peer.getID(set_id, setExternal_id, receiveMessages, connectionIsUp, setRemoteStream, getLocalStream, setCallSet, connectionClosed, onCall);
 	}
 
 	const connectChat = (another) => {
@@ -236,6 +270,7 @@ const  App = () => {
     //requestRemoteCall();
 	    Peer.callToID(another,setRemoteStream, localStream, callIsUp, setCallSet );
 	};
+
 
 	const connectionClosed = () => {
     setChatSet(false);
@@ -257,8 +292,19 @@ const  App = () => {
 	};
 
   const returnStream = (stream) => {
-		console.log("local stream returned to app");
+
+		console.log(localStream, "local stream returned to app so its not null??", stream);
+		if(localStream === null)
+      setLocalStreamSet(true);
+		else
+      setLocalStreamSet(false);
+
 		setLocalStream(stream);
+	};
+
+	const getLocalStream = () => {
+		console.log("BBBBB local stream returnin to peer answer  so its not null", localStream);
+		return localStream;
 	};
 
 	const logout = () => {
@@ -331,19 +377,40 @@ const  App = () => {
 			  id="Remote_video"
 			  stream={remoteStream}
 			  isRemote={true}
-			  setLocalStreamSet={setLocalStreamSet}
+			  setLocalStreamSet={null}
 			  start={start}
 			  setStart={setStart}
 			/>
       <VideoCall
 			  id="Local_video"
+			  stream={localStream}
 			  returnStream={returnStream}
 			  isRemote={false}
 			  start={start}
 			  setStart={setStart}
 			  setLocalStreamSet={setLocalStreamSet}
 			/>
+		<pre>
+			const [user, setUser] = useState({JSON.stringify(user)});<br />
+			const [userSet, setUserSet] = useState({userSet?"true":"false"});<br />
+			const [id, set_id] = useState({id});<br />
+			const [idSet, set_idSet] = useState({idSet?"true":"false"});<br />
 
+			const [external_id, setExternal_id] = useState({external_id});<br />
+
+			const [hide, setHide] = useState({hide?"true":"false"});<br />
+			const [msg, setMsg] = useState({JSON.stringify(msg)});<br />
+			const [start, setStart] = useState({start?"true":"false"});<br />
+			const [chatSet, setChatSet] = useState({chatSet?"true":"false"});<br />
+			const [tmpMsg, setTmpMsg] = useState({tmpMsg});<br />
+			const [newMsg, setNewMsg] = useState({newMsg});<br />
+			const [inNewMsg, setInNewMsg] = useState({inNewMsg});<br />
+			const [remoteStream, setRemoteStream] = useState();<br />
+			const [localStream, setLocalStream] = useState({JSON.stringify(localStream)});<br />
+			const [localStreamSet, setLocalStreamSet] = useState({localStreamSet?"true":"false"});<br />
+			const [callSet, setCallSet] = useState({callSet?"true":"false"});<br />
+			const [session, setSession] = useState({JSON.stringify(session)});<br />
+		</pre>
 		</div>
 	  )
 	 } else {
