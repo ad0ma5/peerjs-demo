@@ -16,31 +16,34 @@ const  App = () => {
 	//console.log("App.js");
 
   // Declare a new state variable, which we'll call "count"
+  const [hide, setHide] = useState(false);
   const [user, setUser] = useState({});
   const [userSet, setUserSet] = useState(false);
+  const [session, setSession] = useState({});
 
   const [external_id, setExternal_id] = useState("");
   const [id, set_id] = useState("");
   const [idSet, set_idSet] = useState(false);
 
-  const [hide, setHide] = useState(false);
   const [msg, setMsg] = useState([]);
-  const [start, setStart] = useState(false);
   const [chatSet, setChatSet] = useState(false);
   const [tmpMsg, setTmpMsg] = useState("");
 	const [newMsg, setNewMsg] = useState(0);
 	const [inNewMsg, setInNewMsg] = useState("");
+
+  const [start, setStart] = useState(false);
   const [remoteStream, setRemoteStream] = useState(false);
   const [localStream, setLocalStream] = useState(false);
   const [localStreamSet, setLocalStreamSet] = useState(false);
   const [callSet, setCallSet] = useState(false);
-  const [session, setSession] = useState({});
   const [callIn, setCallIn] = useState(false);
+  const [callOut, setCallOut] = useState(false);
 
+	//SESSION
 	const setResponse = ( response ) => {
-    console.log("session response from httpGet", response);
+    //console.log("session response from httpGet", response);
 		if(response.status === "ok"){
-			console.log("session response ok");
+			//console.log("session response ok");
       setSession(response.data);
 		}else{
 			setSession({});
@@ -59,19 +62,29 @@ const  App = () => {
 	};
 
 	useEffect(() => {
-		console.log('CALLING', callIn, localStream);
+		console.log('CALLING in? callIn, localStream', callIn, localStream);
 		const call_in = window.call;	
 		if(call_in && callIn){
 				call_in.answer(localStream); // Answer the call with an A/V stream.
 				call_in.on('stream', setRemoteStream);
+			setCallSet(true); 
 		}
 	}, [ callIn ] );
 
 	useEffect(() => {
-		console.log('user changed', user);
+		console.log('CALLING out? callOut, localStream', callOut, localStream);
+		const call_out = window.call;	
+		if(call_out && callOut){
+				//call_in.answer(localStream); // Answer the call with an A/V stream.
+				//call_in.on('stream', setRemoteStream);
+		}
+	}, [ callOut ] );
+
+	useEffect(() => {
+		//console.log('user changed', user);
 		if(id === "" && user.email !== undefined){
 			
-		  console.log('user email', user.email);
+		  //console.log('user email', user.email);
 			getPeerID();
 		}
 	}, [ user ] );
@@ -93,9 +106,8 @@ const  App = () => {
 	}, [session] );
 
 	useEffect(() => {
-		console.log("id changed", id);
+		//console.log("id changed", id);
 		if(id !== ""){
-
 			set_idSet(true);
 		  //start session
       startSession();
@@ -105,6 +117,11 @@ const  App = () => {
 	}, [id] );
 
 	useEffect(() => {
+		//console.log("EXTERNALID CHANGED TO", external_id);
+		if(external_id !== ""){
+      updateQS(external_id);
+			return;
+		}
     var loadID = "";
 	  var url = window.location.href;       
 		var urlSplit = url.split( "?" );       
@@ -115,19 +132,27 @@ const  App = () => {
 	}, [external_id] );
 	
 	useEffect(() => {
-			console.log("use effect START CALL" , start, external_id); // this prints the updated value
+			console.log("use effect START CALL??? " , start, external_id); // this prints the updated value
 	}, [ start ]); // this will be triggered only when state value is different
 	
 	useEffect(() => {
-		console.log("use effect START localStream" , localStream ); // this prints the updated value
+		console.log("use effect START localStream callIn" , localStream, callIn ); // this prints the updated value
+		if(localStream && callIn){
+		console.log("use effect ATTACHING ON CALL" , localStream, callIn, peer ); // this prints the updated value
+			window.peer.on('call', onCall);//end peer.on("open")
+		}
 		//if(start && external_id !== "")
 	  //  Peer.callToID(external_id,setRemoteStream, localStream, callIsUp, setCallSet );
-	}, [  localStream ]); // this will be triggered only when state value is different
+	}, [  localStream, callIn ]); // this will be triggered only when state value is different
+
 	useEffect(() => {
-		console.log("use effect START localStreamSet" , localStreamSet ); // this prints the updated value
+		console.log("use effect START localStreamSet, callIn " , localStreamSet, callIn ); // this prints the updated value
+    if(localStreamSet && callIn){
+			sendControllMsg("accept_call");
+		}
 		//if(start && external_id !== "")
 	  //  Peer.callToID(external_id,setRemoteStream, localStream, callIsUp, setCallSet );
-	}, [ localStreamSet ]); // this will be triggered only when state value is different
+	}, [ localStreamSet, callIn ]); // this will be triggered only when state value is different
 
 	useEffect(() => {
 		if( inNewMsg ){
@@ -142,24 +167,27 @@ const  App = () => {
 	}, [ inNewMsg  ]); // this will be triggered only when state value is different
 
 	useEffect(() => {
-    if(callSet){
-		  console.log('effect incomming open detected ',id);
-		  if(id && id != "")
-		    sendMessages('open chat'+id );
+    if(chatSet){
+		  //console.log('effect incomming open detected ',id);
+		  if(id && id != "" && id !== undefined)
+		    sendMessages('open chat '+id );
 		}
 	}, [ chatSet ]); // this will be triggered only when state value is different
 
 	useEffect(() => {
-    if(callSet){
-		  console.log('effect incomming call  detected ',id);
-		  if(id && id != "")
-		    sendMessages('open call '+id);
+    if(callOut && start && localStreamSet && !callSet && localStream){
+		  console.log('effect outgoing call  detected ',id, " to ", external_id, "localS", localStream);
+		  if(id && id != ""){
+		    sendMessages('open actual peer call from'+id);
+	      Peer.callToID(external_id, setRemoteStream, localStream, callIsUp, setCallSet );
+
+			}
 		}
-	}, [  callSet /*, localStream*/ ]); // this will be triggered only when state value is different
+	}, [  callOut, start , localStreamSet, localStream ]); // this will be triggered only when state value is different
 
 	useEffect(() => {
 
-		  console.log('effect incomming call  remoteStream changed ');
+		  console.log('effect incomming call  remoteStream changed ',remoteStream);
 		if(remoteStream) setCallSet(true);
 	}, [  remoteStream/*, localStream*/ ]); // this will be triggered only when state value is different
 
@@ -184,13 +212,15 @@ const  App = () => {
       setInNewMsg(msg_in.content);
 		if(msg_in.type === "controll"){
       if(msg_in.content === "accept_call"){
-
-				setStart(true);
-				setCallSet(true); 
+        //prepare to call as receiver is ready 
+				if(!start)setStart(true);
+				setCallOut(true);
 			}
       if(msg_in.content === "call"){
-				setStart(true);
-        sendControllMsg("accept_call");
+				//prepare receiving a call as its being requested
+				if(!start)setStart(true);
+				setCallIn(true);
+        //sendControllMsg("accept_call");
 
 			}
       if(msg_in.content === "end_call"){
@@ -217,14 +247,15 @@ const  App = () => {
 	  Peer.sendMessage(JSON.stringify({type:"controll",content: msg_in}));
 	};
 
-  const connectionIsUp = () => {
+  const connectionIsUp = (external) => {
+		//setExternal_id(external);
     receiveMessages({type:"message", content: "connection is open"});
     setChatSet(true);
 	}
 
 	const callIsUp = () => {
     receiveMessages({type:"message", content: "call is up"});
-    setCallSet(true);
+    setCallIn(true);
 	}
 
 	const playRemoteStream = (stream) => {
@@ -240,6 +271,10 @@ const  App = () => {
 				//call = call_in;
 		setCallIn(true);
 		window.call = call_in;
+		call.answer(localStream);
+		call.on('stream', function(stream) {
+			setRemoteStream(stream);
+		})
 				//BUG IN PEERJS close on call never fire
 				/*
 				call.on('close', () => {
@@ -266,9 +301,9 @@ const  App = () => {
 	};
 
 	const connectCall = (another) => {
-			console.log("REQUESTIN A CALL");
-    //requestRemoteCall();
-	    Peer.callToID(another,setRemoteStream, localStream, callIsUp, setCallSet );
+		console.log("REQUESTIN A CALL");
+    requestRemoteCall();
+	  //Peer.callToID(another,setRemoteStream, localStream, callIsUp, setCallSet );
 	};
 
 
@@ -293,11 +328,11 @@ const  App = () => {
 
   const returnStream = (stream) => {
 
-		console.log(localStream, "local stream returned to app so its not null??", stream);
-		if(localStream === null)
-      setLocalStreamSet(true);
-		else
+		console.log("local:",localStream, "new local stream returned to app so its not null??", stream);
+		if(stream === null)
       setLocalStreamSet(false);
+		else
+      setLocalStreamSet(true);
 
 		setLocalStream(stream);
 	};
@@ -393,6 +428,7 @@ const  App = () => {
 		<pre>
 			const [user, setUser] = useState({JSON.stringify(user)});<br />
 			const [userSet, setUserSet] = useState({userSet?"true":"false"});<br />
+			const [session, setSession] = useState({JSON.stringify(session)});<br />
 			const [id, set_id] = useState({id});<br />
 			const [idSet, set_idSet] = useState({idSet?"true":"false"});<br />
 
@@ -405,11 +441,13 @@ const  App = () => {
 			const [tmpMsg, setTmpMsg] = useState({tmpMsg});<br />
 			const [newMsg, setNewMsg] = useState({newMsg});<br />
 			const [inNewMsg, setInNewMsg] = useState({inNewMsg});<br />
-			const [remoteStream, setRemoteStream] = useState();<br />
-			const [localStream, setLocalStream] = useState({JSON.stringify(localStream)});<br />
+			const [remoteStream, setRemoteStream] = useState({remoteStream?JSON.stringify(remoteStream.id):"null"});<br />
+			const [localStream, setLocalStream] = useState({localStream?JSON.stringify(localStream.id):"null"});<br />
 			const [localStreamSet, setLocalStreamSet] = useState({localStreamSet?"true":"false"});<br />
 			const [callSet, setCallSet] = useState({callSet?"true":"false"});<br />
-			const [session, setSession] = useState({JSON.stringify(session)});<br />
+			const [callIn, setCallIn] = useState({callIn?"true":"false"});<br />
+
+			const [callOut, setCallOut] = useState({callOut?"true":"false"});
 		</pre>
 		</div>
 	  )
@@ -429,8 +467,10 @@ const  App = () => {
 
 			<br />
       <VideoCall
+			  id="Remote_video"
 			  stream={remoteStream}
 			  isRemote={true}
+			  setLocalStreamSet={null}
 			  start={start}
 			  setStart={setStart}
 			/>

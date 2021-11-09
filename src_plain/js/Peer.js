@@ -10,7 +10,7 @@ window.functionsP = {};
 /*
 */
 
-const getID = (set_id, setExternal, receiveMessages, connectionIsUp, setRemoteStream, getLocalStream, setCallSet, connectionClosed, onCall) => { 
+const getID = (set_id, setExternal_id, receiveMessages, connectionIsUp, setRemoteStream, getLocalStream, setCallSet, connectionClosed, onCall) => { 
   functionsP.getLocalStream = getLocalStream;
   functionsP.setRemoteStream = setRemoteStream;
   //receive
@@ -28,11 +28,12 @@ console.log("Peer.getID");
 			conn = conn_in;
 			console.log('incomming connection detected',conn);
 			conn.on('open', () => { 
-				setExternal(conn.peer); 
+			  console.log('incomming connection open  detected :',conn);
+				console.log("setting setExternal_id to ", conn.peer);
+				setExternal_id(conn.peer); 
 				connectionIsUp(); 
 
 				receiveMessages(JSON.stringify({type: "message", content: "connection open to "+conn.peer}));
-			  console.log('incomming connectionaopen  detected',conn);
 			});
 			conn.on('data', (data) => {
 				receiveMessages(data);
@@ -42,9 +43,9 @@ console.log("Peer.getID");
 		});
 		
 		//Answer call
-		peer.on('call', onCall);//end peer.on("open")
+		//peer.on('call', onCall);
 	  set_id(peer.id);
-	});
+	});//end peer.on("open")
 /*
 	setTimeout(()=>{
 		console.log('donothing inside timeout after connecting');

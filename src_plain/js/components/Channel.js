@@ -62,7 +62,7 @@ const Channel = ({selectPeer, id, idSet, session}) => {
 
 	useEffect(() => {
     if(Object.keys(channel).length < 1 && id !== "" && session?.id !== undefined){
-		  console.log('channel et fired',channel, id, session);
+		  //console.log('channel et fired',channel, id, session);
 			getChannel();
 		}
 		else if(id === "" && Object.keys(channel).length > 0 ){

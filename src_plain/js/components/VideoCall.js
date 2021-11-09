@@ -8,7 +8,7 @@ export default function VideoCall({stream, returnStream, isRemote, setLocalStrea
 
 	  useEffect(() => {
 			if(!start) return
-			console.log('video effect',refVideo ,refVideo.current );
+			console.log('start true and sObjectA changed video effect. refVideo:',refVideo," .current:" ,refVideo.current );
 			if (!refVideo.current) return
 			if(!sObject) return
 			refVideo.current.srcObject = sObject;
@@ -26,6 +26,7 @@ export default function VideoCall({stream, returnStream, isRemote, setLocalStrea
 				return;
 			}
 			if(!isRemote){
+				console.log("START CHANGED VIDEOCALL STATE",start);
 			  if(!start && refVideo !== null){
 					//console.log([refVideo, sObject]);
    
@@ -39,18 +40,18 @@ export default function VideoCall({stream, returnStream, isRemote, setLocalStrea
 			    refVideo.current.srcObject = null;
           setSObjectA(false);
 					sefVideo = null;
-					returnStream(null);
+					//returnStream(null);
 					return
 				}else 
-					if(stream === null){
-					console.log('mount local video as it is null');
+				if(stream === null || stream === false){
+					console.log('mount local video as stream is null', stream);
 					navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
 					if (navigator.getUserMedia) {
 						navigator.getUserMedia({video: true, audio: true}, handleVideo, videoError);
 					}//end navigator
 				}// end if !start
 				else{
-					console.log('no mount local video as it is not null');
+					console.log('no mount local video as it is not null', stream);
 
 
 				}
@@ -73,7 +74,7 @@ export default function VideoCall({stream, returnStream, isRemote, setLocalStrea
       console.log('error',err);
 
 			if(!isRemote){
-				setLocalStreamSet(true);
+				//setLocalStreamSet(true);
 			}
 		}
 
