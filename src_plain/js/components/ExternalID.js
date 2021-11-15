@@ -1,19 +1,19 @@
 import React from 'react';
 
-const ExternalID = ({ updateE_id, external_id, chatSet, connectChat, connectCall, closeChat, callSet, closeCall }) => {
+const ExternalID = ({ updateE_id, external_id, external_user, chatSet, connectChat, connectCall, closeChat, callSet, closeCall }) => {
 
 	const printChat = () => {
 	  if(chatSet == false){
       return (
 				<div>
-			  <input type="text" value={external_id} onChange={ (e) => updateE_id(e.target.value) } /> external_id = {external_id} 
+			  external_id = <input type="text" value={external_id} onChange={ (e) => updateE_id(e.target.value) } />
 			  <button onClick={() => connectChat(external_id)}> Chat </button> 
 				</div>
 		  );
 	  }else{
       return (
 			  <div>
-			connected to {external_id} chat.	
+			connected to  { external_user } {external_id} chat.	
 			<button onClick={() => closeChat()}>Close Chat </button> 
 		    </div>
 			);

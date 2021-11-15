@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import httpGet from "../httpGet.js";
 var interval = null;
 
-const Channel = ({selectPeer, id, idSet, session}) => {
+const Channel = ({selectPeer, setExternal_user, id, idSet, session}) => {
 	
   const [channel, setChannel] = useState({});
 
@@ -20,11 +20,11 @@ const Channel = ({selectPeer, id, idSet, session}) => {
       return (
 			  <div 
 				  key={key} 
-				  onClick={() =>{ selectPeer(ch[key].peer_id ); console.log('clickinnn'); }}
+				  onClick={() =>{ setExternal_user(ch[key].email); selectPeer(ch[key].peer_id ); console.log('clickinnn'); }}
 				  title={ ch[key].peer_id }
 				  className="underline"
 				>
-				  [{ ch[key].email }] --- { getTimeDiff(ch[key].id) }
+				  [{ ch[key].username } / { ch[key].email }] --- { getTimeDiff(ch[key].id) }
 				</div>
 			);
 		});

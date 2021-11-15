@@ -22,6 +22,7 @@ const  App = () => {
   const [session, setSession] = useState({});
 
   const [external_id, setExternal_id] = useState("");
+  const [external_user, setExternal_user] = useState("");
   const [id, set_id] = useState("");
   const [idSet, set_idSet] = useState(false);
 
@@ -51,7 +52,7 @@ const  App = () => {
 	}
 
 	const startSession = () => {
-		const query = "add&&email="+user.email+"&peer_id="+id+"&online=true";
+		const query = "add&&email="+user.email+"&peer_id="+id+"&username="+user.username;
 		if(user.email)
 	  httpGet(setResponse, query, "peerjs/sessions");
 	};
@@ -187,7 +188,7 @@ const  App = () => {
 
 	useEffect(() => {
 
-		  console.log('effect incomming call  remoteStream changed ',remoteStream);
+		  console.log('effect incomming call  remoteStream changed ',remoteStream, "CallSet",callSet);
 		if(remoteStream) setCallSet(true);
 	}, [  remoteStream/*, localStream*/ ]); // this will be triggered only when state value is different
 
@@ -290,7 +291,7 @@ const  App = () => {
 	}
 
 	const connectChat = (another) => {
-	  Peer.connectToID(another,receiveMessages, connectionIsUp, connectionClosed);
+	  Peer.connectToID(another,receiveMessages, connectionIsUp, connectionClosed, user);
 	};
 
 	const closeChat = () => {
@@ -308,6 +309,8 @@ const  App = () => {
 
 
 	const connectionClosed = () => {
+
+		console.log("connectionClosed");
     setChatSet(false);
 
 	};
@@ -363,23 +366,25 @@ const  App = () => {
   if(!hide){
 	  return(
 
-		<div key={msg}>
-			<button 
-				onClick={ () => setHide(true) }
-			>
-			  Hide 
-			</button>
-			<button 
-				onClick={ () => logout() }
-			>
-			  Logout 
-			</button>
-			<User
-			  user={user}
-			  setUser={setUser}
-			  userSet={userSet}
-				setUserSet={setUserSet}
-			/>
+		<div key={msg} >
+		  <div  className="controlls">
+				<User
+					user={user}
+					setUser={setUser}
+					userSet={userSet}
+					setUserSet={setUserSet}
+				/>
+				<button 
+					onClick={ () => setHide(true) }
+				>
+					Hide 
+				</button>
+				<button 
+					onClick={ () => logout() }
+				>
+					Logout 
+				</button>
+			</div>
 			<PeerID
 			  id={id}
         idSet={idSet}
@@ -390,12 +395,14 @@ const  App = () => {
 			<Channel 
 			  id={id}
         selectPeer={updateE_id}
+        setExternal_user={setExternal_user}
         idSet={idSet}
 			  session={session}
 			/>
 			<ExternalID
 			  updateE_id={updateE_id}
 			  external_id={external_id}
+			  external_user={external_user}
 			  chatSet={chatSet}
         connectChat={connectChat}
 			  connectCall={connectCall}
@@ -403,11 +410,18 @@ const  App = () => {
 			  callSet={callSet}
 			  closeCall={closeCall}
 			/>
-      <MsgList
-        msg={msg}
-			/>
-			{newMsg} <input type="text" value={tmpMsg} onChange={ (e) => setTmpMsg(e.target.value) } />  = {tmpMsg} <button onClick={() => sendMessages(tmpMsg)}> send </button> 
-			<br />
+			{
+				chatSet &&
+				<div>
+					<MsgList
+						msg={msg}
+					/>
+					<div className="messageIn">
+					{newMsg} <input type="text" value={tmpMsg} onChange={ (e) => setTmpMsg(e.target.value) } />  = {tmpMsg} <button onClick={() => sendMessages(tmpMsg)}> send </button> 
+					</div>
+					<br />
+		  	</div>
+			}
       <VideoCall
 			  id="Remote_video"
 			  stream={remoteStream}
@@ -415,6 +429,7 @@ const  App = () => {
 			  setLocalStreamSet={null}
 			  start={start}
 			  setStart={setStart}
+			  callSet={callSet}
 			/>
       <VideoCall
 			  id="Local_video"
@@ -424,6 +439,7 @@ const  App = () => {
 			  start={start}
 			  setStart={setStart}
 			  setLocalStreamSet={setLocalStreamSet}
+			  callSet={callSet}
 			/>
 		<pre>
 			const [user, setUser] = useState({JSON.stringify(user)});<br />
@@ -466,20 +482,6 @@ const  App = () => {
 			</button>
 
 			<br />
-      <VideoCall
-			  id="Remote_video"
-			  stream={remoteStream}
-			  isRemote={true}
-			  setLocalStreamSet={null}
-			  start={start}
-			  setStart={setStart}
-			/>
-      <VideoCall
-			  returnStream={returnStream}
-			  isRemote={false}
-			  start={start}
-			  setStart={setStart}
-			/>
 		   </div>
 		 );
 	 }

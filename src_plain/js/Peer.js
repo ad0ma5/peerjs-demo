@@ -58,11 +58,15 @@ console.log("Peer.getID");
 */
 };
 	  //Peer.connectToID(another, receiveMessages, connectionIsUp);
-const connectToID = (another_id, receiveMessages, connectionIsUp, connectionClosed) => {
-	const options = { label: "Private chat" };
+const connectToID = (another_id, receiveMessages, connectionIsUp, connectionClosed, user) => {
+	const options = { 
+		label: "Private chat",
+		metadata: { userFrom: user.username, emailFrom: user.email},
+		serialization: "json"
+	};
   //connect 
 	conn = peer.connect(another_id, options);
-	console.log('peer connect',conn, peer, another_id);
+	console.log('peer connect',conn, peer, another_id, options);
 	conn.on('open', connectionIsUp);
 	conn.on('data', receiveMessages);
 	conn.on('close', connectionClosed);

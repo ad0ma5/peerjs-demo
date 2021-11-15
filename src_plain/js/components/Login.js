@@ -41,7 +41,9 @@ const Login = ({setUser, user, userSet, setUserSet }) => {
   else
 	return (
 		<div  className="padding border" >
+		  <div>
 		  Login: 
+		  </div>
 		  <input 
 		    placeholder="Email"
 		    type="text" 

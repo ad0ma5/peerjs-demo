@@ -10,8 +10,8 @@ const User = ({setUser, user, userSet, setUserSet}) => {
 		);
 	}else{
     return (
-	  	<div  className="padding border" > 
-			  user = {user.username}
+	  	<div  className="padding border inline" > 
+			  username = {user.username}
 			</div>
 		);
 	}
