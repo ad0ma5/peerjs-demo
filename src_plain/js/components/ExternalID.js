@@ -5,16 +5,16 @@ const ExternalID = ({ updateE_id, external_id, external_user, chatSet, connectCh
 	const printChat = () => {
 	  if(chatSet == false){
       return (
-				<div>
-			  external_id = <input type="text" value={external_id} onChange={ (e) => updateE_id(e.target.value) } />
-			  <button onClick={() => connectChat(external_id)}> Chat </button> 
+				<div className="inline">
+			  external_id = <input className="inline" type="text" value={external_id} onChange={ (e) => updateE_id(e.target.value) } />  { external_user } 
+			  <button className="inline" onClick={() => connectChat(external_id)}> Chat </button> 
 				</div>
 		  );
 	  }else{
       return (
 			  <div>
 			connected to  { external_user } {external_id} chat.	
-			<button onClick={() => closeChat()}>Close Chat </button> 
+			<button  className="inline" onClick={() => closeChat()}>Close Chat </button> 
 		    </div>
 			);
 	  }
@@ -24,14 +24,14 @@ const ExternalID = ({ updateE_id, external_id, external_user, chatSet, connectCh
 	
 	  if(callSet == false){
       return (
-				<button onClick={() => connectCall(external_id)}> Call </button> 
+				<button className="inline"  onClick={() => connectCall(external_id)}> Call </button> 
 
 			);
 		}else{
       return (
 	      <div>
 				  in call with {external_id}. 
-			    <button onClick={() => closeCall()}> End Call </button> 
+			    <button  className="inline" onClick={() => closeCall()}> End Call </button> 
 				</div>
 			);
 		}

@@ -422,6 +422,8 @@ const  App = () => {
 					<br />
 		  	</div>
 			}
+			{
+				remoteStream &&
       <VideoCall
 			  id="Remote_video"
 			  stream={remoteStream}
@@ -431,6 +433,9 @@ const  App = () => {
 			  setStart={setStart}
 			  callSet={callSet}
 			/>
+			}
+			{
+				//localStream || start &&
       <VideoCall
 			  id="Local_video"
 			  stream={localStream}
@@ -441,6 +446,9 @@ const  App = () => {
 			  setLocalStreamSet={setLocalStreamSet}
 			  callSet={callSet}
 			/>
+			}
+			{
+				/*
 		<pre>
 			const [user, setUser] = useState({JSON.stringify(user)});<br />
 			const [userSet, setUserSet] = useState({userSet?"true":"false"});<br />
@@ -465,6 +473,8 @@ const  App = () => {
 
 			const [callOut, setCallOut] = useState({callOut?"true":"false"});
 		</pre>
+		  */
+			}
 		</div>
 	  )
 	 } else {

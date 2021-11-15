@@ -22,7 +22,7 @@ const Channel = ({selectPeer, setExternal_user, id, idSet, session}) => {
 				  key={key} 
 				  onClick={() =>{ setExternal_user(ch[key].email); selectPeer(ch[key].peer_id ); console.log('clickinnn'); }}
 				  title={ ch[key].peer_id }
-				  className="underline"
+				  className="underline item"
 				>
 				  [{ ch[key].username } / { ch[key].email }] --- { getTimeDiff(ch[key].id) }
 				</div>

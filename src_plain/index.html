@@ -10,18 +10,29 @@ body,input, button {
   background-color: black;
   color: lightgreen;
 	margin: 0;
+	font-size:20px;
 }
 input, button {
   border: lightgreen solid 1px;
 }
+button{
+margin-left: 5px;
+}
 video{
 	border: solid 1px red;
+	max-width:100%;
+  width: 49%;
 }
 pre{
 	overflow: auto;
 }
+a{ color: red; }
 .center{ 
 	text-align: center;
+}
+.item:hover,
+.item:active{
+	background-color: darkgrey;
 }
 #root{
 
@@ -59,7 +70,7 @@ pre{
 
 @media only screen and (max-width: 600px) {
 	  body,input, button {
-			font-size:20px;
+			font-size:30px;
 
 		}
 		input, button{
