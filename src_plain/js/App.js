@@ -225,8 +225,10 @@ const  App = () => {
 
 			}
       if(msg_in.content === "end_call"){
-
 	      Peer.closeCall(setCallSet);
+				setCallOut(false);
+				setCallIn(false);
+				setStart(false);
 			}
 
 		}
@@ -317,6 +319,9 @@ const  App = () => {
 
 	const closeCall = () => {
 	  Peer.closeCall(setCallSet);
+				setCallOut(false);
+				setCallIn(false);
+				setStart(false);
 
     sendControllMsg("end_call");
 	};

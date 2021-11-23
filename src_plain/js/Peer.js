@@ -14,7 +14,7 @@ const getID = (set_id, setExternal_id, receiveMessages, connectionIsUp, setRemot
   functionsP.getLocalStream = getLocalStream;
   functionsP.setRemoteStream = setRemoteStream;
   //receive
-console.log("Peer.getID");
+console.log("Peer.getID" );
   peer = new Peer(null, {
       	host: 'b5277.k.dedikuoti.lt',
 	      port: 9000,
@@ -124,6 +124,7 @@ const closeCall = (setCallSet) => {
 	console.log("close local call",call);
   if(call){
 		call.close();
+		call = null;
 	}else{
 		console.log("no call to close found? ");
 	}
