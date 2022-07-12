@@ -10,3 +10,5 @@ A small video chat solution using PeerJS as written in the LogRocket article.
 3. public feed
 4. session close on unload etc.
 
+` npm run serve_e ` - to run the server
+` npm run start_p ` - to run the client server
